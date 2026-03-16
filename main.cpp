@@ -43,20 +43,20 @@ public:
     //     return *this;
     // }
     //
-    // virtual ~Instrument() = default;
+    virtual ~Instrument() = default;
 
-    std::string getName() {
+    std::string getName() const {
         return this->name;
     }
-    std::string getSymbol() {
+    std::string getSymbol() const {
         return this->symbol;
     }
-    double getPrice() {
+    double getPrice() const {
         return this->current_price;
     }
 
-    virtual TipInstrument getTip() = 0;
-    virtual Instrument* clone() = 0;
+    virtual TipInstrument getTip() const = 0;
+    virtual Instrument* clone() const = 0;
 
     friend std::ostream& operator<<(std::ostream& os, const Instrument& inst);
 };
@@ -78,10 +78,10 @@ public:
         this->tip_instrument = TipInstrument::STOCK;
     }
     ~PhysicalAsset() = default;
-    TipInstrument getTip() {
+    TipInstrument getTip() const {
         return TipInstrument::STOCK;
     }
-    Instrument* clone() {
+    Instrument* clone() const{
         return new PhysicalAsset(*this);
     }
 };
@@ -98,10 +98,10 @@ public:
         this->tip_instrument = TipInstrument::DERIVATE;
     }
     ~Derivative() = default;
-    TipInstrument getTip() {
+    TipInstrument getTip() const {
         return TipInstrument::DERIVATE;
     }
-    Instrument* clone() {
+    Instrument* clone() const {
         return new Derivative(*this);
     }
 };
