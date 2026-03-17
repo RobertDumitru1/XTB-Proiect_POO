@@ -24,7 +24,7 @@ public:
 
     virtual ~Instrument() = default;
 
-     std::string getName() const { return this->name; }
+     // std::string getName() const { return this->name; }
      std::string getSymbol() const { return this->symbol; }
      double getPrice() const { return this->current_price; }
 
@@ -110,8 +110,6 @@ public:
             this->margin_blocked = (entry_price * quantity) / leverage_used;
     }
 
-     double getMarginBlocked() const { return margin_blocked; }
-     Instrument* getAsset() const { return asset; }
 
     friend std::ostream& operator<<(std::ostream& os, const Position& pos);
 };
