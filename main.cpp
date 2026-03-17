@@ -3,60 +3,32 @@
 #include <vector>
 #include <fstream>
 
-std::ifstream fin("tastatura.txt");
+// Folosim un nume mai explicit pentru a evita conflictele
+std::ifstream fin_tastatura("tastatura.txt");
 
-enum Currency {
-    USD,
-    EUR,
-    RON
-};
-enum TipInstrument {
-    STOCK,
-    // CRIPTO,
-    DERIVATE
-};
-//completa
+enum Currency { USD, EUR, RON };
+enum TipInstrument { GENERAL, STOCK, DERIVATE };
+
 class Instrument {
 protected:
-    std::string name;
-    std::string symbol;
-    double current_price;
-    TipInstrument tip_instrument;
+    std::string name = "";
+    std::string symbol = "";
+    double current_price = 0.0;
+    TipInstrument tip_instrument = TipInstrument::GENERAL;
 public:
     Instrument() = default;
 
     Instrument(const std::string& name, const std::string& symbol, double current_price)
         : name(name), symbol(symbol), current_price(current_price) {}
 
-    // Instrument(const Instrument& other) {
-    //     this->name = other.name;
-    //     this->symbol = other.symbol;
-    //     this->current_price = other.current_price;
-    //     this->tip_instrument = other.tip_instrument;
-    // }
-    //
-    // Instrument& operator=(const Instrument &other) {
-    //     this->name = other.name;
-    //     this->symbol = other.symbol;
-    //     this->current_price = other.current_price;
-    //     this->tip_instrument = other.tip_instrument;
-    //     return *this;
-    // }
-    //
     virtual ~Instrument() = default;
 
-    std::string getName() const {
-        return this->name;
-    }
-    std::string getSymbol() const {
-        return this->symbol;
-    }
-    double getPrice() const {
-        return this->current_price;
-    }
+     std::string getName() const { return this->name; }
+     std::string getSymbol() const { return this->symbol; }
+     double getPrice() const { return this->current_price; }
 
-    virtual TipInstrument getTip() const = 0;
-    virtual Instrument* clone() const = 0;
+     virtual TipInstrument getTip() const = 0;
+     virtual Instrument* clone() const = 0;
 
     friend std::ostream& operator<<(std::ostream& os, const Instrument& inst);
 };
@@ -66,10 +38,9 @@ std::ostream& operator<<(std::ostream& os, const Instrument& inst) {
     return os;
 }
 
-//todo constructor de copiere si operatorul =
 class PhysicalAsset : public Instrument {
 private:
-    double dividend_yield;
+    double dividend_yield = 0.0;
 public:
     PhysicalAsset() = default;
 
@@ -77,19 +48,20 @@ public:
         : Instrument(name, symbol, current_price), dividend_yield(dividend_yield) {
         this->tip_instrument = TipInstrument::STOCK;
     }
-    ~PhysicalAsset() = default;
-    TipInstrument getTip() const {
-        return TipInstrument::STOCK;
-    }
-    Instrument* clone() const{
+
+    ~PhysicalAsset() override = default;
+
+     TipInstrument getTip() const override { return TipInstrument::STOCK; }
+
+     Instrument* clone() const override {
         return new PhysicalAsset(*this);
     }
 };
-//todo constructor de copiere si operatorul =
+
 class Derivative : public Instrument {
 private:
-    int max_leverage;
-    double swap_fee;
+    int max_leverage = 1;
+    double swap_fee = 0.0;
 public:
     Derivative() = default;
 
@@ -97,41 +69,43 @@ public:
         : Instrument(name, symbol, current_price), max_leverage(max_leverage), swap_fee(swap_fee) {
         this->tip_instrument = TipInstrument::DERIVATE;
     }
-    ~Derivative() = default;
-    TipInstrument getTip() const {
-        return TipInstrument::DERIVATE;
-    }
-    Instrument* clone() const {
+
+    ~Derivative() override = default;
+
+     TipInstrument getTip() const override { return TipInstrument::DERIVATE; }
+
+     Instrument* clone() const override {
         return new Derivative(*this);
     }
 };
 
-//completa
 class Position {
 private:
-    Instrument* asset;
-    double entry_price;
-    double quantity;
-    int leverage_used;
-    double margin_blocked;
+    Instrument* asset = nullptr;
+    double entry_price = 0.0;
+    double quantity = 0.0;
+    int leverage_used = 1;
+    double margin_blocked = 0.0;
 public:
     Position() = default;
 
     Position(Instrument* asset, double entry_price, double quantity, int leverage_used)
         : asset(asset), entry_price(entry_price), quantity(quantity), leverage_used(leverage_used) {
-
-        this->margin_blocked = (entry_price * quantity) / leverage_used;
+        if (leverage_used > 0)
+            this->margin_blocked = (entry_price * quantity) / leverage_used;
     }
 
-    double getMarginBlocked() const { return margin_blocked; }
-    Instrument* getAsset() const { return asset; }
+     double getMarginBlocked() const { return margin_blocked; }
+     Instrument* getAsset() const { return asset; }
 
     friend std::ostream& operator<<(std::ostream& os, const Position& pos);
 };
 
 std::ostream& operator<<(std::ostream& os, const Position& pos) {
-    os << "  -> " << pos.quantity << " x " << pos.asset->getSymbol()
-       << " | Pret intrare: " << pos.entry_price << "$ | Marja: " << pos.margin_blocked << "$";
+    if (pos.asset) {
+        os << "  -> " << pos.quantity << " x " << pos.asset->getSymbol()
+           << " | Pret intrare: " << pos.entry_price << "$ | Marja: " << pos.margin_blocked << "$";
+    }
     return os;
 }
 
@@ -141,25 +115,10 @@ private:
 public:
     Portfolio() = default;
 
-    Portfolio(const std::vector<Position>& active_positions)
+    explicit Portfolio(const std::vector<Position>& active_positions)
         : active_positions(active_positions) {}
 
-    Portfolio(const Portfolio &portfolio) {
-        for (auto& w : portfolio.active_positions) {
-            this->active_positions.push_back(w);
-        }
-    }
-
-    Portfolio& operator=(const Portfolio &portfolio) {
-        active_positions.clear();
-        for (auto& w : portfolio.active_positions) {
-            this->active_positions.push_back(w);
-        }
-        return *this;
-    }
-    ~Portfolio() = default;
-    //todo ar putea fi private si friend cu user
-    void addPosition(Position position) {
+    void addPosition(const Position& position) {
         active_positions.push_back(position);
     }
 
@@ -180,20 +139,18 @@ std::ostream& operator<<(std::ostream& os, const Portfolio& port) {
 
 class Transaction {
 private:
-    std::string asset_symbol;
-    double entry_price;
-    double close_price;
+    std::string asset_symbol = "";
+    double entry_price = 0.0;
+    double close_price = 0.0;
 public:
     Transaction() = default;
 
-    Transaction(const std::string &asset_symbol, double entry_price, double close_price)
-        : asset_symbol(asset_symbol),
-          entry_price(entry_price),
-          close_price(close_price) {
-    }
+    Transaction(const std::string &symbol, double entry, double close)
+        : asset_symbol(symbol), entry_price(entry), close_price(close) {}
 
     friend std::ostream& operator<<(std::ostream& os, const Transaction& t);
 };
+
 std::ostream& operator<<(std::ostream& os, const Transaction& t) {
     os << "Tranzactie: " << t.asset_symbol << " | Pret intrare: " << t.entry_price
        << "$ | Pret inchidere: " << t.close_price << "$";
@@ -206,104 +163,90 @@ private:
 public:
     Market() = default;
 
-    Market(const std::vector<Instrument *> &available_instruments)
-        : available_instruments(available_instruments) {}
-
-    Market (const Market& market) {
-        for (auto &w : market.available_instruments) {
-            this->available_instruments.push_back(w->clone());
+    explicit Market(const std::vector<Instrument*>& insts) {
+        for (auto* i : insts) {
+            if (i) this->available_instruments.push_back(i->clone());
         }
     }
 
-    Market& operator=(const Market& market) {
-        if (this == &market) return *this;
-
-        for (auto &w : available_instruments) {
-            delete w;
+    Market(const Market& other) {
+        for (auto* i : other.available_instruments) {
+            if (i) this->available_instruments.push_back(i->clone());
         }
-        available_instruments.clear();
-        for (auto &w : market.available_instruments) {
-            this->available_instruments.push_back(w->clone());
+    }
+
+    Market& operator=(const Market& other) {
+        if (this != &other) {
+            for (auto* i : available_instruments) delete i;
+            available_instruments.clear();
+            for (auto* i : other.available_instruments) {
+                if (i) this->available_instruments.push_back(i->clone());
+            }
         }
         return *this;
     }
 
     ~Market() {
-        for (auto &w : available_instruments) {
-            delete w;
-        }
-
+        for (auto* i : available_instruments) delete i;
     }
 
-    Instrument* findInstrument(std::string symbol) {
-        for (auto &w : available_instruments) {
-            if (w->getSymbol() == symbol) {
-                return w;
-            }
+     Instrument* findInstrument(const std::string& symbol) const {
+        for (auto* i : available_instruments) {
+            if (i->getSymbol() == symbol) return i;
         }
-
-        std::cout << "Instrumentul cautat nu exista! \n\n";
         return nullptr;
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Market& m);
-
 };
 
 std::ostream& operator<<(std::ostream& os, const Market& m) {
     os << "=== PIATA DE INSTRUMENTE ===\n";
-    for (const auto& inst : m.available_instruments) {
-        os << *inst << "\n";
+    for (const auto* inst : m.available_instruments) {
+        if (inst) os << *inst << "\n";
     }
     return os;
 }
 
 class User {
 private:
-    std::string name, cnp, password;
-    Currency currency;
-    double available_balance;
-    double invested_balance;
+    std::string name = "", cnp = "", password = "";
+    Currency currency = USD;
+    double available_balance = 0.0;
+    double invested_balance = 0.0;
     Portfolio portfolio;
     std::vector<Transaction> history;
-    Market *market;
+    Market* market = nullptr;
 public:
     User() = default;
 
-    User(const std::string &name, const std::string &cnp, const std::string &password, Currency currency,
-         double available_balance, double invested_balance, const Portfolio &portfolio, const std::vector<Transaction> &history,
-         Market *market)
-        : name(name),
-          cnp(cnp),
-          password(password),
-          currency(currency),
-          available_balance(available_balance),
-          invested_balance(invested_balance),
-          portfolio(portfolio),
-          history(history),
-          market(market) {}
+    User(const std::string& n, const std::string& c, const std::string& p, Currency curr,
+         double avail, double inv, const Portfolio& port, const std::vector<Transaction>& hist, Market* m)
+        : name(n), cnp(c), password(p), currency(curr), available_balance(avail),
+          invested_balance(inv), portfolio(port), history(hist), market(m) {}
 
-    void buyAsset(std::string symbol, double quantity) {
-        auto instrument = market->findInstrument(symbol);
-        int leverage_used = 1;
-        if (instrument == nullptr) {
+    void buyAsset(const std::string& symbol, double quantity) {
+        if (!market) return;
+        auto* instrument = market->findInstrument(symbol);
+        if (!instrument) {
+            std::cout << "Instrumentul " << symbol << " nu exista!\n";
             return;
         }
-        else {
-            if (instrument->getTip() == TipInstrument::DERIVATE) {
-                fin >> leverage_used;
-            }
-            double required_margin = (instrument->getPrice() * quantity) / leverage_used;
 
-            if (available_balance >= required_margin) {
-                this->available_balance -= required_margin;
-                this->invested_balance += required_margin;
-                this->portfolio.addPosition(Position(instrument, instrument->getPrice(), quantity, leverage_used));
-                history.push_back(Transaction(symbol, instrument->getPrice(), 0.0));
-                std::cout << "Ai cumparat cu succes " << quantity << " " << symbol << "!\n";
-            } else {
-                std::cout << "Fonduri insuficiente!";
-            }
+        int leverage = 1;
+        if (instrument->getTip() == TipInstrument::DERIVATE && fin_tastatura.is_open()) {
+            fin_tastatura >> leverage;
+        }
+
+        double margin = (instrument->getPrice() * quantity) / leverage;
+        if (available_balance >= margin) {
+            available_balance -= margin;
+            invested_balance += margin;
+            portfolio.addPosition(Position(instrument, instrument->getPrice(), quantity, leverage));
+            history.emplace_back(symbol, instrument->getPrice(), 0.0);
+            std::cout << "Succes: " << quantity << " " << symbol << "\n";
+        } else {
+            std::cout << "Fonduri insuficiente pentru " << symbol << "!\n";
         }
     }
 
@@ -311,69 +254,24 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const User& u) {
-    os << "====================================\n";
-    os << "Utilizator: " << u.name << "\n";
-    os << "Balanta disponibila: " << u.available_balance << " $\n";
-    os << "Bani investiti: " << u.invested_balance << " $\n";
-    os << "------------------------------------\n";
-
-    os << u.portfolio;
-
-    os << "--- ISTORIC TRANZACTII ---\n";
-    if (u.history.empty()) {
-        os << "  Nicio tranzactie inregistrata.\n";
-    } else {
-        for (const auto& tx : u.history) {
-            os << tx << "\n";
-        }
-    }
-    os << "====================================\n";
+    os << "Utilizator: " << u.name << " | Balanta: " << u.available_balance << "$ CNP:" << u.cnp << "Parola: " << u.password << "\n" << u.portfolio;
     return os;
 }
 
 int main() {
-    // Pregatim Piata
-    std::vector<Instrument*> instrumenteInitiale;
-    instrumenteInitiale.push_back(new PhysicalAsset("Apple Inc.", "AAPL", 150.5, 0.02));
-    instrumenteInitiale.push_back(new PhysicalAsset("Tesla Inc.", "TSLA", 200.0, 0.00));
-    instrumenteInitiale.push_back(new Derivative("Bitcoin", "BTC", 65000.0, 10, 0.001));
-
-    // Cream Market-ul si il afisam ca sa verificam operatorul<<
-    Market bursa(instrumenteInitiale);
-    std::cout << bursa << "\n\n";
-
-    // Cream un Utilizator nou
-    std::vector<Transaction> istoricGol;
-    Portfolio portofoliuGol;
-
-    User client("Alex Popescu", "1900101123456", "parolaSuperSecreta", USD,
-                5000.0, // Bani disponibili
-                0.0,    // Bani investiti la inceput
-                portofoliuGol, istoricGol, &bursa);
-
-    std::cout << "--- Status inainte de actiuni ---\n";
-    std::cout << client << "\n";
-
-    // Incepem sa tranzactionam!
-    std::cout << "\n>>> INCEPERE TRANZACTII >>>\n\n";
-
-    // Cumparam 10 actiuni Apple
-    client.buyAsset("AAPL", 10);
-
-    // Cumparam 0.1 Bitcoin
-    client.buyAsset("BTC", 0.1);
-
-    // Incercam sa cumparam ceva ce nu exista ca sa testam logica de eroare
-    client.buyAsset("AMZN", 5);
-
-    // Incercam sa cumparam prea mult
-    client.buyAsset("TSLA", 50);
-
-    //  Afisam statusul final
-    std::cout << "\n\n--- Status final ---\n";
-    std::cout << client << "\n";
-
+    // std::vector<Instrument*> initial;
+    // initial.push_back(new PhysicalAsset("Apple Inc.", "AAPL", 150.5, 0.02));
+    // initial.push_back(new PhysicalAsset("Tesla Inc.", "TSLA", 200.0, 0.00));
+    // initial.push_back(new Derivative("Bitcoin", "BTC", 65000.0, 10, 0.001));
+    //
+    // Market bursa(initial);
+    //
+    // User client("Alex Popescu", "1900101123456", "secret", USD, 5000.0, 0.0, Portfolio(), {}, &bursa);
+    // client.buyAsset("AAPL", 10);
+    // std::cout << client << "\n";
+    //
+    // for (auto* i : initial) {
+    //     delete i;
+    // }
     return 0;
 }
-
-// Cache sters
