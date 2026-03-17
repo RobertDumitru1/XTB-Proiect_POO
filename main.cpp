@@ -193,7 +193,7 @@ public:
         if (this != &other) {
             for (auto* i : available_instruments) delete i;
             available_instruments.clear();
-            for (auto* i : other.available_instruments) {
+            for (const auto* i : other.available_instruments) {
                 if (i) this->available_instruments.push_back(i->clone());
             }
         }
