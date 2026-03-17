@@ -8,6 +8,7 @@ std::ifstream fin_tastatura("tastatura.txt");
 
 enum Currency { USD, EUR, RON };
 enum TipInstrument { GENERAL, STOCK, DERIVATE };
+const std::string nume_monede[] = { "USD", "EUR", "RON" };
 
 class Instrument {
 protected:
@@ -89,7 +90,7 @@ public:
 
     void print(std::ostream& os) const override {
          Instrument::print(os);
-         os << " | Leverage: x" << max_leverage << " | Swap: " << swap_fee; 
+         os << " | Leverage: x" << max_leverage << " | Swap: " << swap_fee;
      }
 };
 
@@ -179,13 +180,13 @@ public:
     Market() = default;
 
     explicit Market(const std::vector<Instrument*>& insts) {
-        for (auto* i : insts) {
+        for (const auto* i : insts) {
             if (i) this->available_instruments.push_back(i->clone());
         }
     }
 
     Market(const Market& other) {
-        for (auto* i : other.available_instruments) {
+        for (const auto* i : other.available_instruments) {
             if (i) this->available_instruments.push_back(i->clone());
         }
     }
@@ -269,24 +270,57 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const User& u) {
-    os << "Utilizator: " << u.name << " | Balanta: " << u.available_balance << "$ CNP:" << u.cnp << "Parola: " << u.password << "Currency: " << u.currency << "\n" << u.portfolio;
+    os << "Utilizator: " << u.name << " | Balanta: " << u.available_balance << "$ CNP:" << u.cnp << " Parola: " << u.password << " Currency: " << nume_monede[u.currency] << "\n" << u.portfolio;
     return os;
 }
 
 int main() {
-    // std::vector<Instrument*> initial;
-    // initial.push_back(new PhysicalAsset("Apple Inc.", "AAPL", 150.5, 0.02));
-    // initial.push_back(new PhysicalAsset("Tesla Inc.", "TSLA", 200.0, 0.00));
-    // initial.push_back(new Derivative("Bitcoin", "BTC", 65000.0, 10, 0.001));
-    //
-    // Market bursa(initial);
-    //
-    // User client("Alex Popescu", "1900101123456", "secret", USD, 5000.0, 0.0, Portfolio(), {}, &bursa);
-    // client.buyAsset("AAPL", 10);
-    // std::cout << client << "\n";
-    //
-    // for (auto* i : initial) {
-    //     delete i;
-    // }
+    // Folosim un vector temporar pentru a popula piata
+    std::vector<Instrument*> de_adaugat;
+    de_adaugat.push_back(new PhysicalAsset("Apple Inc.", "AAPL", 150.5, 2.5));
+    de_adaugat.push_back(new PhysicalAsset("Tesla Inc.", "TSLA", 240.0, 0.0));
+    de_adaugat.push_back(new Derivative("Bitcoin Perpetual", "BTC-PERP", 65000.0, 10, 0.01));
+    de_adaugat.push_back(new Derivative("Ethereum Futures", "ETH-FUT", 3500.0, 5, 0.02));
+
+    // Initializam piata (aceasta va face deep copy prin clone())
+    Market bursa_valori(de_adaugat);
+
+    // Curatam vectorul temporar pentru a evita memory leaks (Market are deja copiile sale)
+    for (auto* i : de_adaugat) delete i;
+    de_adaugat.clear();
+
+    // Afisam piata disponibila
+    std::cout << bursa_valori << std::endl;
+
+    // Crearea unui Utilizator ---
+    Portfolio portofoliu_initial;
+    std::vector<Transaction> istoric_initial;
+
+    User client("Andrei Ionescu", "5010101123456", "parola123", USD,
+                10000.0, // Balanta initiala
+                0.0,     // Investitii initiale
+                portofoliu_initial, istoric_initial, &bursa_valori);
+
+    std::cout << "--- Stare Initiala Client ---" << std::endl;
+    std::cout << client << std::endl;
+
+    // Simularea tranzactiilor
+    std::cout << "\n>>> Se proceseaza tranzactiile...\n" << std::endl;
+
+    // Cumparam un activ fizic (leverage va fi 1 implicit)
+    client.buyAsset("AAPL", 10); // 10 * 150.5 = 1505$ marja
+
+    // Cumparam un derivat
+    client.buyAsset("BTC-PERP", 0.5);
+
+    // Incercam sa cumparam ceva ce nu exista
+    client.buyAsset("GOOGLE", 1);
+
+    // Incercam sa cumparam peste buget
+    client.buyAsset("TSLA", 1000);
+
+    std::cout << "\n--- Stare Finala Client ---" << std::endl;
+    std::cout << client << std::endl;
+
     return 0;
 }
