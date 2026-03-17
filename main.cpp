@@ -30,6 +30,10 @@ public:
      virtual TipInstrument getTip() const = 0;
      virtual Instrument* clone() const = 0;
 
+    virtual void print(std::ostream& os) const {
+        os << "[" << symbol << "] " << name << " - Pret: " << current_price << "$";
+    }
+
     friend std::ostream& operator<<(std::ostream& os, const Instrument& inst);
 };
 
@@ -56,6 +60,11 @@ public:
      Instrument* clone() const override {
         return new PhysicalAsset(*this);
     }
+
+    void print(std::ostream& os) const override {
+         Instrument::print(os);
+         os << " | Dividend: " << dividend_yield << "%";
+     }
 };
 
 class Derivative : public Instrument {
@@ -77,6 +86,11 @@ public:
      Instrument* clone() const override {
         return new Derivative(*this);
     }
+
+    void print(std::ostream& os) const override {
+         Instrument::print(os);
+         os << " | Leverage: x" << max_leverage << " | Swap: " << swap_fee; 
+     }
 };
 
 class Position {
@@ -104,6 +118,7 @@ public:
 std::ostream& operator<<(std::ostream& os, const Position& pos) {
     if (pos.asset) {
         os << "  -> " << pos.quantity << " x " << pos.asset->getSymbol()
+           << " | Leverage: x" << pos.leverage_used
            << " | Pret intrare: " << pos.entry_price << "$ | Marja: " << pos.margin_blocked << "$";
     }
     return os;
@@ -254,7 +269,7 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const User& u) {
-    os << "Utilizator: " << u.name << " | Balanta: " << u.available_balance << "$ CNP:" << u.cnp << "Parola: " << u.password << "\n" << u.portfolio;
+    os << "Utilizator: " << u.name << " | Balanta: " << u.available_balance << "$ CNP:" << u.cnp << "Parola: " << u.password << "Currency: " << u.currency << "\n" << u.portfolio;
     return os;
 }
 
