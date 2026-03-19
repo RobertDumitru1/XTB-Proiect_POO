@@ -1,7 +1,12 @@
+#include <atomic>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <fstream>
+#include <random>
+#include <thread>
+
+class Market;
 
 // Folosim un nume mai explicit pentru a evita conflictele
 std::ifstream fin_tastatura("tastatura.txt");
@@ -36,6 +41,7 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Instrument& inst);
+    friend class Market;
 };
 
 std::ostream& operator<<(std::ostream& os, const Instrument& inst) {
@@ -174,16 +180,31 @@ std::ostream& operator<<(std::ostream& os, const Transaction& t) {
 class Market {
 private:
     std::vector<Instrument*> available_instruments;
+    std::thread price_thread;
+    std::atomic<bool> is_running{false};
+
+    void changePrices() {
+        while (this->is_running) {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_real_distribution<> dis(-5.0, 5.0);
+            for (auto *w : available_instruments) {
+                w->current_price = w->current_price + w->current_price * dis(gen) / 100;
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(3));
+        }
+    }
+
 public:
     Market() = default;
 
-    explicit Market(const std::vector<Instrument*>& insts) {
+    explicit Market(const std::vector<Instrument*>& insts){
         for (const auto* i : insts) {
             if (i) this->available_instruments.push_back(i->clone());
         }
     }
 
-    Market(const Market& other) {
+    Market(const Market& other) : is_running(false) {
         for (const auto* i : other.available_instruments) {
             if (i) this->available_instruments.push_back(i->clone());
         }
@@ -192,15 +213,18 @@ public:
     Market& operator=(const Market& other) {
         if (this != &other) {
             for (auto* i : available_instruments) delete i;
-            available_instruments.clear();
+            this->stopMarket();
+            this->available_instruments.clear();
             for (const auto* i : other.available_instruments) {
                 if (i) this->available_instruments.push_back(i->clone());
             }
+            this->is_running.store(false);
         }
         return *this;
     }
 
     ~Market() {
+        this->stopMarket();
         for (auto* i : available_instruments) delete i;
     }
 
@@ -212,6 +236,21 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Market& m);
+
+    void startMarket() {
+        if (!this->is_running.load()) {
+            this->is_running.store(true);
+            price_thread = std::thread(&Market::changePrices, this);
+        }
+    }
+
+    void stopMarket() {
+        this->is_running.store(false);
+        if (price_thread.joinable()) {
+            price_thread.join();
+        }
+
+    }
 };
 
 std::ostream& operator<<(std::ostream& os, const Market& m) {
@@ -257,7 +296,7 @@ public:
             available_balance -= margin;
             invested_balance += margin;
             portfolio.addPosition(Position(instrument, instrument->getPrice(), quantity, leverage));
-            history.emplace_back(symbol, instrument->getPrice(), 0.0);
+            history.push_back(Transaction(symbol, instrument->getPrice(), 0.0));
             std::cout << "Succes: " << quantity << " " << symbol << "\n";
         } else {
             std::cout << "Fonduri insuficiente pentru " << symbol << "!\n";
@@ -273,52 +312,78 @@ std::ostream& operator<<(std::ostream& os, const User& u) {
 }
 
 int main() {
-    // Folosim un vector temporar pentru a popula piata
+
     std::vector<Instrument*> de_adaugat;
-    de_adaugat.push_back(new PhysicalAsset("Apple Inc.", "AAPL", 150.5, 2.5));
+    de_adaugat.push_back(new PhysicalAsset("Apple Inc.", "AAPL", 150.0, 2.5));
     de_adaugat.push_back(new PhysicalAsset("Tesla Inc.", "TSLA", 240.0, 0.0));
     de_adaugat.push_back(new Derivative("Bitcoin Perpetual", "BTC-PERP", 65000.0, 10, 0.01));
-    de_adaugat.push_back(new Derivative("Ethereum Futures", "ETH-FUT", 3500.0, 5, 0.02));
 
-    // Initializam piata (aceasta va face deep copy prin clone())
     Market bursa_valori(de_adaugat);
 
-    // Curatam vectorul temporar pentru a evita memory leaks (Market are deja copiile sale)
     for (auto* i : de_adaugat) delete i;
     de_adaugat.clear();
 
-    // Afisam piata disponibila
-    std::cout << bursa_valori << std::endl;
+    std::cout << "Deschiderea pietei \n";
+    bursa_valori.startMarket();
 
-    // Crearea unui Utilizator ---
-    Portfolio portofoliu_initial;
-    std::vector<Transaction> istoric_initial;
+    for (int i = 1; i <= 4; ++i) {
+        std::cout << "\n--- Verificare Piata " << i << " ---\n";
+        std::cout << bursa_valori;
 
-    User client("Andrei Ionescu", "5010101123456", "parola123", USD,
-                10000.0, // Balanta initiala
-                0.0,     // Investitii initiale
-                portofoliu_initial, istoric_initial, &bursa_valori);
-
-    std::cout << "--- Stare Initiala Client ---" << std::endl;
-    std::cout << client << std::endl;
-
-    // Simularea tranzactiilor
-    std::cout << "\n>>> Se proceseaza tranzactiile...\n" << std::endl;
-
-    // Cumparam un activ fizic (leverage va fi 1 implicit)
-    client.buyAsset("AAPL", 10); // 10 * 150.5 = 1505$ marja
-
-    // Cumparam un derivat
-    client.buyAsset("BTC-PERP", 0.5);
-
-    // Incercam sa cumparam ceva ce nu exista
-    client.buyAsset("GOOGLE", 1);
-
-    // Incercam sa cumparam peste buget
-    client.buyAsset("TSLA", 1000);
-
-    std::cout << "\n--- Stare Finala Client ---" << std::endl;
-    std::cout << client << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(4));
+    }
+    bursa_valori.stopMarket();
 
     return 0;
 }
+
+// int main() {
+//     // Folosim un vector temporar pentru a popula piata
+//     std::vector<Instrument*> de_adaugat;
+//     de_adaugat.push_back(new PhysicalAsset("Apple Inc.", "AAPL", 150.5, 2.5));
+//     de_adaugat.push_back(new PhysicalAsset("Tesla Inc.", "TSLA", 240.0, 0.0));
+//     de_adaugat.push_back(new Derivative("Bitcoin Perpetual", "BTC-PERP", 65000.0, 10, 0.01));
+//     de_adaugat.push_back(new Derivative("Ethereum Futures", "ETH-FUT", 3500.0, 5, 0.02));
+//
+//     // Initializam piata (aceasta va face deep copy prin clone())
+//     Market bursa_valori(de_adaugat);
+//
+//     // Curatam vectorul temporar pentru a evita memory leaks (Market are deja copiile sale)
+//     for (auto* i : de_adaugat) delete i;
+//     de_adaugat.clear();
+//
+//     // Afisam piata disponibila
+//     std::cout << bursa_valori << std::endl;
+//
+//     // Crearea unui Utilizator ---
+//     Portfolio portofoliu_initial;
+//     std::vector<Transaction> istoric_initial;
+//
+//     User client("Andrei Ionescu", "5010101123456", "parola123", USD,
+//                 10000.0, // Balanta initiala
+//                 0.0,     // Investitii initiale
+//                 portofoliu_initial, istoric_initial, &bursa_valori);
+//
+//     std::cout << "--- Stare Initiala Client ---" << std::endl;
+//     std::cout << client << std::endl;
+//
+//     // Simularea tranzactiilor
+//     std::cout << "\n>>> Se proceseaza tranzactiile...\n" << std::endl;
+//
+//     // Cumparam un activ fizic (leverage va fi 1 implicit)
+//     client.buyAsset("AAPL", 10); // 10 * 150.5 = 1505$ marja
+//
+//     // Cumparam un derivat
+//     client.buyAsset("BTC-PERP", 0.5);
+//
+//     // Incercam sa cumparam ceva ce nu exista
+//     client.buyAsset("GOOGLE", 1);
+//
+//     // Incercam sa cumparam peste buget
+//     client.buyAsset("TSLA", 1000);
+//
+//     std::cout << "\n--- Stare Finala Client ---" << std::endl;
+//     std::cout << client << std::endl;
+//
+//     return 0;
+// }
