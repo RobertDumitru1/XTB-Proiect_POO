@@ -13,6 +13,7 @@ std::ifstream fin_tastatura("tastatura.txt");
 
 enum Currency { USD, EUR, RON };
 enum TipInstrument { GENERAL, STOCK, DERIVATE };
+enum TipTranzactie {BUY, SELL};
 const std::string nume_monede[] = { "USD", "EUR", "RON" };
 
 class Instrument {
@@ -29,7 +30,6 @@ public:
 
     virtual ~Instrument() = default;
 
-     // std::string getName() const { return this->name; }
      std::string getSymbol() const { return this->symbol; }
      double getPrice() const { return this->current_price; }
 
@@ -102,8 +102,11 @@ public:
 
 class Position {
 private:
+    static int position_ids;
+    int id;
     Instrument* asset = nullptr;
     double entry_price = 0.0;
+    double close_price = 0.0;
     double quantity = 0.0;
     int leverage_used = 1;
     double margin_blocked = 0.0;
@@ -111,23 +114,47 @@ public:
     Position() = default;
 
     Position(Instrument* asset, double entry_price, double quantity, int leverage_used)
-        : asset(asset), entry_price(entry_price), quantity(quantity), leverage_used(leverage_used) {
+        : id(++position_ids), asset(asset), entry_price(entry_price), quantity(quantity), leverage_used(leverage_used) {
         if (leverage_used > 0)
             this->margin_blocked = (entry_price * quantity) / leverage_used;
     }
 
+    int getId() const {
+        return this->id;
+    }
+
+    Instrument* getInstrument() const {
+        return this->asset;
+    }
+    void setClosePrice(const int price) {
+        this->close_price = price;
+    }
+
+    double getQuantity() const{
+        return this->quantity;
+    }
+
+    double getMarginBlocked() const {
+        return this->margin_blocked;
+    }
+
+    double getEntryPrice() const {
+        return this->entry_price;
+    }
 
     friend std::ostream& operator<<(std::ostream& os, const Position& pos);
 };
 
 std::ostream& operator<<(std::ostream& os, const Position& pos) {
     if (pos.asset) {
-        os << "  -> " << pos.quantity << " x " << pos.asset->getSymbol()
+        os << "  [ID: " << pos.id << "] -> " << pos.quantity << " x " << pos.asset->getSymbol()
            << " | Leverage: x" << pos.leverage_used
            << " | Pret intrare: " << pos.entry_price << "$ | Marja: " << pos.margin_blocked << "$";
     }
     return os;
 }
+int Position::position_ids = 0;
+
 
 class Portfolio {
 private:
@@ -140,6 +167,24 @@ public:
 
     void addPosition(const Position& position) {
         active_positions.push_back(position);
+    }
+
+    Position* findPosition(const int id) {
+        for (auto &w : this->active_positions) {
+            if (id == w.getId()) {
+                return &w;
+            }
+        }
+        return nullptr;
+    }
+
+    void removePosition(const int id) {
+        for (auto it = active_positions.begin(); it != active_positions.end(); ++it) {
+            if (it->getId() == id) {
+                active_positions.erase(it);
+                return;
+            }
+        }
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Portfolio& port);
@@ -159,21 +204,26 @@ std::ostream& operator<<(std::ostream& os, const Portfolio& port) {
 
 class Transaction {
 private:
+    static int transaction_ids;
+    int id;
     std::string asset_symbol = "";
-    double entry_price = 0.0;
-    double close_price = 0.0;
+    double price = 0.0;
+    TipTranzactie tip;
 public:
     Transaction() = default;
 
-    Transaction(const std::string &symbol, double entry, double close)
-        : asset_symbol(symbol), entry_price(entry), close_price(close) {}
+    Transaction(const std::string &symbol, double price, TipTranzactie tip)
+        : id(++transaction_ids), asset_symbol(symbol), price(price), tip(tip) {}
 
     friend std::ostream& operator<<(std::ostream& os, const Transaction& t);
 };
 
+int Transaction::transaction_ids = 0;
+
 std::ostream& operator<<(std::ostream& os, const Transaction& t) {
-    os << "Tranzactie: " << t.asset_symbol << " | Pret intrare: " << t.entry_price
-       << "$ | Pret inchidere: " << t.close_price << "$";
+    std::string tip_str = (t.tip == TipTranzactie::BUY) ? "BUY " : "SELL";
+    os << "Tranzactie [ID: " << t.id << "] " << tip_str << " | " << t.asset_symbol
+       << " | Pret: " << t.price << "$";
     return os;
 }
 
@@ -183,7 +233,7 @@ private:
     std::thread price_thread;
     std::atomic<bool> is_running{false};
 
-    void changePrices() {
+    void changePrices() const{
         while (this->is_running) {
             std::random_device rd;
             std::mt19937 gen(rd());
@@ -191,7 +241,7 @@ private:
             for (auto *w : available_instruments) {
                 w->current_price = w->current_price + w->current_price * dis(gen) / 100;
             }
-            std::this_thread::sleep_for(std::chrono::seconds(3));
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
 
@@ -270,6 +320,7 @@ private:
     Portfolio portfolio;
     std::vector<Transaction> history;
     Market* market = nullptr;
+
 public:
     User() = default;
 
@@ -296,10 +347,36 @@ public:
             available_balance -= margin;
             invested_balance += margin;
             portfolio.addPosition(Position(instrument, instrument->getPrice(), quantity, leverage));
-            history.push_back(Transaction(symbol, instrument->getPrice(), 0.0));
+            history.push_back(Transaction(symbol, instrument->getPrice(), TipTranzactie::BUY));
             std::cout << "Succes: " << quantity << " " << symbol << "\n";
         } else {
             std::cout << "Fonduri insuficiente pentru " << symbol << "!\n";
+        }
+    }
+
+    void sellPosition(const int position_id) {
+        Position *pos = portfolio.findPosition(position_id);
+        if (!pos) {
+            std::cout << "Pozitia introdusa a fost inchisa sau nu exista\n";
+            return;
+        }
+        Instrument *inst = pos->getInstrument();
+        pos->setClosePrice(inst->getPrice());
+        this->available_balance += pos->getMarginBlocked() + (inst->getPrice() - pos->getEntryPrice()) * pos->getQuantity();
+        this->invested_balance -= pos->getMarginBlocked();
+        this->history.push_back(Transaction(inst->getSymbol(), inst->getPrice(), TipTranzactie::SELL));
+
+        this->portfolio.removePosition(position_id);
+    }
+
+    void printHistory() const {
+        std::cout << "=== ISTORIC TRANZACTII (" << name << ") ===\n";
+        if (history.empty()) {
+            std::cout << "Nu exista tranzactii.\n";
+            return;
+        }
+        for (const auto& t : history) {
+            std::cout << t << "\n";
         }
     }
 
@@ -312,78 +389,69 @@ std::ostream& operator<<(std::ostream& os, const User& u) {
 }
 
 int main() {
-
+    std::cout << ">>> INITIALIZARE PIATA\n";
     std::vector<Instrument*> de_adaugat;
     de_adaugat.push_back(new PhysicalAsset("Apple Inc.", "AAPL", 150.0, 2.5));
     de_adaugat.push_back(new PhysicalAsset("Tesla Inc.", "TSLA", 240.0, 0.0));
-    de_adaugat.push_back(new Derivative("Bitcoin Perpetual", "BTC-PERP", 65000.0, 10, 0.01));
+    de_adaugat.push_back(new Derivative("Bitcoin Perpetual", "BTC-PERP", 60000.0, 10, 0.01));
 
     Market bursa_valori(de_adaugat);
 
     for (auto* i : de_adaugat) delete i;
     de_adaugat.clear();
 
-    std::cout << "Deschiderea pietei \n";
+    std::cout << "Deschidem piata principala...\n";
     bursa_valori.startMarket();
 
-    for (int i = 1; i <= 4; ++i) {
-        std::cout << "\n--- Verificare Piata " << i << " ---\n";
-        std::cout << bursa_valori;
+    std::cout << "\n>>> OBSERVAM FLUCTUATIILE PIETEI TIMP DE 10 SECUNDE\n";
+    for (int i = 0; i <= 10; ++i) {
+        std::cout << "--- Secunda " << i << " ---\n";
+        std::cout << bursa_valori << "\n";
 
-        std::this_thread::sleep_for(std::chrono::seconds(4));
+        if (i < 10) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
     }
+    std::cout << "-------------------------------------------------------\n\n";
+
+    std::cout << ">>> CREARE UTILIZATOR\n";
+    Portfolio portofoliu_initial;
+    std::vector<Transaction> istoric_initial;
+    User client("Andrei Ionescu", "5010101123456", "parola123", USD,
+                10000.0, // Balanta disponibila
+                0.0,     // Balanta investita
+                portofoliu_initial, istoric_initial, &bursa_valori);
+
+    std::cout << client << "\n";
+
+    std::cout << ">>> TESTARE ACHIZITII (BUY)\n";
+    client.buyAsset("AAPL", 10.0);
+    client.buyAsset("BTC-PERP", 0.5);
+    client.buyAsset("FAKECOIN", 100);
+    client.buyAsset("TSLA", 10000.0);
+
+    std::cout << "\n>>> STARE DUPA ACHIZITII:\n" << client << "\n";
+
+    std::cout << ">>> ASTEPTAM FLUCTUATII DE PRET\n";
+    for (int i = 1; i <= 2; ++i) {
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::cout << "Update preturi\n" << bursa_valori << "\n";
+    }
+
+    std::cout << ">>> TESTARE VANZARE \n";
+    std::cout << "Incercam sa vindem AAPL (ID 1)\n";
+    client.sellPosition(1);
+
+    std::cout << "Incercam sa vindem o pozitie inexistenta (ID 99)\n";
+    client.sellPosition(99);
+
+    std::cout << "\n>>> STARE FINALA CLIENT:\n" << client << "\n";
+
+    std::cout << ">>> VERIFICARE ISTORIC TRANZACTII\n";
+    client.printHistory();
+
+    std::cout << "\n>>> INCHIDERE PIATA\n";
     bursa_valori.stopMarket();
 
     return 0;
 }
-
-// int main() {
-//     // Folosim un vector temporar pentru a popula piata
-//     std::vector<Instrument*> de_adaugat;
-//     de_adaugat.push_back(new PhysicalAsset("Apple Inc.", "AAPL", 150.5, 2.5));
-//     de_adaugat.push_back(new PhysicalAsset("Tesla Inc.", "TSLA", 240.0, 0.0));
-//     de_adaugat.push_back(new Derivative("Bitcoin Perpetual", "BTC-PERP", 65000.0, 10, 0.01));
-//     de_adaugat.push_back(new Derivative("Ethereum Futures", "ETH-FUT", 3500.0, 5, 0.02));
-//
-//     // Initializam piata (aceasta va face deep copy prin clone())
-//     Market bursa_valori(de_adaugat);
-//
-//     // Curatam vectorul temporar pentru a evita memory leaks (Market are deja copiile sale)
-//     for (auto* i : de_adaugat) delete i;
-//     de_adaugat.clear();
-//
-//     // Afisam piata disponibila
-//     std::cout << bursa_valori << std::endl;
-//
-//     // Crearea unui Utilizator ---
-//     Portfolio portofoliu_initial;
-//     std::vector<Transaction> istoric_initial;
-//
-//     User client("Andrei Ionescu", "5010101123456", "parola123", USD,
-//                 10000.0, // Balanta initiala
-//                 0.0,     // Investitii initiale
-//                 portofoliu_initial, istoric_initial, &bursa_valori);
-//
-//     std::cout << "--- Stare Initiala Client ---" << std::endl;
-//     std::cout << client << std::endl;
-//
-//     // Simularea tranzactiilor
-//     std::cout << "\n>>> Se proceseaza tranzactiile...\n" << std::endl;
-//
-//     // Cumparam un activ fizic (leverage va fi 1 implicit)
-//     client.buyAsset("AAPL", 10); // 10 * 150.5 = 1505$ marja
-//
-//     // Cumparam un derivat
-//     client.buyAsset("BTC-PERP", 0.5);
-//
-//     // Incercam sa cumparam ceva ce nu exista
-//     client.buyAsset("GOOGLE", 1);
-//
-//     // Incercam sa cumparam peste buget
-//     client.buyAsset("TSLA", 1000);
-//
-//     std::cout << "\n--- Stare Finala Client ---" << std::endl;
-//     std::cout << client << std::endl;
-//
-//     return 0;
-// }
