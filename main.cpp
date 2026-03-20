@@ -103,7 +103,7 @@ public:
 class Position {
 private:
     static int position_ids;
-    int id;
+    int id = 0;
     Instrument* asset = nullptr;
     double entry_price = 0.0;
     double close_price = 0.0;
@@ -205,7 +205,7 @@ std::ostream& operator<<(std::ostream& os, const Portfolio& port) {
 class Transaction {
 private:
     static int transaction_ids;
-    int id;
+    int id = 0;
     std::string asset_symbol = "";
     double price = 0.0;
     TipTranzactie tip;
@@ -355,12 +355,16 @@ public:
     }
 
     void sellPosition(const int position_id) {
+        if (!position_id) {
+            std::cout << "Pozitia introdusa a fost inchisa sau nu exista\n";
+            return;
+        }
         Position *pos = portfolio.findPosition(position_id);
         if (!pos) {
             std::cout << "Pozitia introdusa a fost inchisa sau nu exista\n";
             return;
         }
-        Instrument *inst = pos->getInstrument();
+        const Instrument *inst = pos->getInstrument();
         pos->setClosePrice(inst->getPrice());
         this->available_balance += pos->getMarginBlocked() + (inst->getPrice() - pos->getEntryPrice()) * pos->getQuantity();
         this->invested_balance -= pos->getMarginBlocked();
