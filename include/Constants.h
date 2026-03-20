@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 
-inline extern std::ifstream fin_tastatura;
+inline std::ifstream fin_tastatura;
 
 enum Currency { USD, EUR, RON };
 enum TipInstrument { GENERAL, STOCK, DERIVATE };

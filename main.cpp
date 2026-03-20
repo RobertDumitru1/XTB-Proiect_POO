@@ -11,7 +11,6 @@
 #include "include/User.h"
 #include "include/Constants.h"
 
-std::ifstream fin_tastatura("tastatura.txt");
 
 int main() {
     std::cout << ">>> INITIALIZARE PIATA\n";

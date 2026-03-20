@@ -1,0 +1,51 @@
+//
+// Created by dumro on 3/20/2026.
+//
+#include "Trading.h"
+
+int Position::position_ids = 0;
+int Transaction::transaction_ids = 0;
+
+Position::Position(Instrument* asset, double entry_price, double quantity, int leverage_used)
+    : id(++position_ids), asset(asset), entry_price(entry_price), quantity(quantity), leverage_used(leverage_used) {
+    if (leverage_used > 0)
+        this->margin_blocked = (entry_price * quantity) / leverage_used;
+}
+
+void Portfolio::addPosition(const Position& position) {
+    active_positions.push_back(position);
+}
+
+Position* Portfolio::findPosition(int id) {
+    for (auto &w : active_positions) {
+        if (id == w.getId()) return &w;
+    }
+    return nullptr;
+}
+
+void Portfolio::removePosition(int id) {
+    for (auto it = active_positions.begin(); it != active_positions.end(); ++it) {
+        if (it->getId() == id) {
+            active_positions.erase(it);
+            return;
+        }
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, const Portfolio& port) {
+    os << "=== PORTOFOLIU CURENT ===\n";
+    if (port.active_positions.empty()) os << "  Portofoliul este gol.\n";
+    else {
+        for (const auto& pos : port.active_positions) os << pos << "\n";
+    }
+    return os;
+}
+
+Transaction::Transaction(const std::string &symbol, double price, TipTranzactie tip)
+    : id(++transaction_ids), asset_symbol(symbol), price(price), tip(tip) {}
+
+std::ostream& operator<<(std::ostream& os, const Transaction& t) {
+    std::string tip_str = (t.tip == TipTranzactie::BUY) ? "BUY " : "SELL";
+    os << "Tranzactie [ID: " << t.id << "] " << tip_str << " | " << t.asset_symbol << " | Pret: " << t.price << "$";
+    return os;
+}
