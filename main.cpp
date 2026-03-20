@@ -208,7 +208,7 @@ private:
     int id = 0;
     std::string asset_symbol = "";
     double price = 0.0;
-    TipTranzactie tip;
+    TipTranzactie tip = TipTranzactie::BUY;
 public:
     Transaction() = default;
 
