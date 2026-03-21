@@ -12,9 +12,16 @@ Position::Position(Instrument* asset, double entry_price, double quantity, int l
         this->margin_blocked = (entry_price * quantity) / leverage_used;
 }
 
+
+int Position::getId() const { return id; }
+Instrument* Position::getInstrument() const { return asset; }
 void Portfolio::addPosition(const Position& position) {
     active_positions.push_back(position);
 }
+void Position::setClosePrice(double price) { close_price = price; }
+double Position::getQuantity() const { return quantity; }
+double Position::getMarginBlocked() const { return margin_blocked; }
+double Position::getEntryPrice() const { return entry_price; }
 
 Position* Portfolio::findPosition(int id) {
     for (auto &w : active_positions) {

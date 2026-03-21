@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <random>
 #include <thread>
 
 #include "include/Instrument.h"
@@ -41,7 +40,7 @@ int main() {
     std::cout << ">>> CREARE UTILIZATOR\n";
     Portfolio portofoliu_initial;
     std::vector<Transaction> istoric_initial;
-    User client("Andrei Ionescu", "5010101123456", "parola123", USD,
+    User client("Andrei Ionescu", "5010101123456", "parola123", Currency::USD,
                 10000.0, // Balanta disponibila
                 0.0,     // Balanta investita
                 portofoliu_initial, istoric_initial, &bursa_valori);
