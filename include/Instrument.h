@@ -49,7 +49,7 @@ public:
     Derivative(const std::string& name, const std::string& symbol, double current_price, int leverage, double swap_fee);
     [[nodiscard]]TipInstrument getTip() const override;
     [[nodiscard]]Instrument* clone() const override;
-    [[nodiscard]]int getLeverage() const;
+    [[nodiscard]]int getLeverage() const override;
     void print(std::ostream& os) const override;
 
 
