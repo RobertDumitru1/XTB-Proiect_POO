@@ -20,7 +20,7 @@ public:
     Instrument(const std::string& name, const std::string& symbol, double current_price);
     virtual ~Instrument() = default;
 
-    [[nodiscard]] std::string &getSymbol() const;
+    [[nodiscard]] const std::string& getSymbol() const;
     [[nodiscard]]double getPrice() const;
     [[nodiscard]]virtual TipInstrument getTip() const = 0;
     [[nodiscard]]virtual Instrument* clone() const = 0;

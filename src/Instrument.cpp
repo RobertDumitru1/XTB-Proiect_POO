@@ -3,7 +3,7 @@
 //
 #include "Instrument.h"
 
-std::string& Instrument::getSymbol() const { return symbol; }
+const std::string& Instrument::getSymbol() const { return symbol; }
 double Instrument::getPrice() const { return current_price; }
 Instrument::Instrument(const std::string& name, const std::string& symbol, double current_price)
     : name(name), symbol(symbol), current_price(current_price) {}
