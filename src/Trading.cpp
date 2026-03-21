@@ -44,8 +44,18 @@ std::ostream& operator<<(std::ostream& os, const Portfolio& port) {
 Transaction::Transaction(const std::string &symbol, double price, TipTranzactie tip)
     : id(++transaction_ids), asset_symbol(symbol), price(price), tip(tip) {}
 
+
 std::ostream& operator<<(std::ostream& os, const Transaction& t) {
     std::string tip_str = (t.tip == TipTranzactie::BUY) ? "BUY " : "SELL";
     os << "Tranzactie [ID: " << t.id << "] " << tip_str << " | " << t.asset_symbol << " | Pret: " << t.price << "$";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Position& pos) {
+    if (pos.asset) {
+        os << "  [ID: " << pos.id << "] -> " << pos.quantity << " x " << pos.asset->getSymbol()
+           << " | Leverage: x" << pos.leverage_used
+           << " | Pret intrare: " << pos.entry_price << "$ | Marja: " << pos.margin_blocked << "$";
+    }
     return os;
 }
