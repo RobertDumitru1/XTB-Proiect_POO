@@ -19,7 +19,7 @@ class User {
 
 public:
     User() = default;
-    User(std::string n, std::string c, std::string p, Currency curr, double avail, double inv, Portfolio port, std::vector<Transaction> hist, Market* m);
+    User(const std::string& n, const std::string& c, const std::string& p, Currency curr, double avail, double inv, const Portfolio& port, const std::vector<Transaction>& hist, Market* m);
     void buyAsset(const std::string& symbol, double quantity);
     void sellPosition(int position_id);
     void printHistory() const;

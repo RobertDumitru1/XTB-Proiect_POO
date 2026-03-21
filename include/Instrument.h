@@ -1,8 +1,12 @@
+//
+// Created by dumro on 3/20/2026.
+//
+
+
 #ifndef XTB_PROIECT_POO_INSTRUMENT_H
 #define XTB_PROIECT_POO_INSTRUMENT_H
 
 #include <string>
-#include <iostream>
 #include "Constants.h"
 
 class Instrument {
@@ -16,10 +20,10 @@ public:
     Instrument(const std::string& name, const std::string& symbol, double current_price);
     virtual ~Instrument() = default;
 
-    std::string getSymbol() const;
-    double getPrice() const;
-    virtual TipInstrument getTip() const = 0;
-    virtual Instrument* clone() const = 0;
+    [[nodiscard]] std::string getSymbol() const;
+    [[nodiscard]]double getPrice() const;
+    [[nodiscard]]virtual TipInstrument getTip() const = 0;
+    [[nodiscard]]virtual Instrument* clone() const = 0;
     virtual void print(std::ostream& os) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Instrument& inst);
@@ -31,8 +35,8 @@ class PhysicalAsset : public Instrument {
 public:
     PhysicalAsset() = default;
     PhysicalAsset(const std::string& name, const std::string& symbol, double current_price, double dividend_yield);
-    TipInstrument getTip() const override;
-    Instrument* clone() const override;
+    [[nodiscard]]TipInstrument getTip() const override;
+    [[nodiscard]]Instrument* clone() const override;
     void print(std::ostream& os) const override;
 };
 
@@ -42,13 +46,9 @@ class Derivative : public Instrument {
 public:
     Derivative() = default;
     Derivative(const std::string& name, const std::string& symbol, double current_price, int max_leverage, double swap_fee);
-    TipInstrument getTip() const override;
-    Instrument* clone() const override;
+    [[nodiscard]]TipInstrument getTip() const override;
+    [[nodiscard]]Instrument* clone() const override;
     void print(std::ostream& os) const override;
-};
 
-inline std::ostream& operator<<(std::ostream& os, const Instrument& inst) {
-    inst.print(os);
-    return os;
-}
+};
 #endif

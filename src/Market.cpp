@@ -4,7 +4,7 @@
 #include "Market.h"
 #include <random>
 
-void Market::changePrices() {
+void Market::changePrices() const {
     while (this->is_running) {
         std::random_device rd;
         std::mt19937 gen(rd());

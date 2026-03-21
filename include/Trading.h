@@ -21,12 +21,12 @@ class Position {
 public:
     Position() = default;
     Position(Instrument* asset, double entry_price, double quantity, int leverage_used);
-    int getId() const { return id; }
-    Instrument* getInstrument() const { return asset; }
-    void setClosePrice(double price) { close_price = price; }
-    double getQuantity() const { return quantity; }
-    double getMarginBlocked() const { return margin_blocked; }
-    double getEntryPrice() const { return entry_price; }
+    [[nodiscard]] int getId() const;
+    [[nodiscard]] Instrument* getInstrument() const;
+    void setClosePrice(double price);
+    [[nodiscard]] double getQuantity() const ;
+    [[nodiscard]] double getMarginBlocked() const;
+    [[nodiscard]] double getEntryPrice() const;
     friend std::ostream& operator<<(std::ostream& os, const Position& pos);
 };
 

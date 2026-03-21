@@ -2,9 +2,10 @@
 // Created by dumro on 3/20/2026.
 //
 
+#include <iostream>
 #include "User.h"
 
-User::User(std::string n, std::string c, std::string p, Currency curr, double avail, double inv, Portfolio port, std::vector<Transaction> hist, Market* m)
+User::User(const std::string& n, const std::string& c, const std::string& p, Currency curr, double avail, double inv, const Portfolio& port, const std::vector<Transaction>& hist, Market* m)
     : name(n), cnp(c), password(p), currency(curr), available_balance(avail), invested_balance(inv), portfolio(port), history(hist), market(m) {}
 
 void User::buyAsset(const std::string& symbol, double quantity) {
@@ -19,7 +20,9 @@ void User::buyAsset(const std::string& symbol, double quantity) {
     if (available_balance >= margin) {
         available_balance -= margin; invested_balance += margin;
         portfolio.addPosition(Position(inst, inst->getPrice(), quantity, leverage));
-        history.push_back(Transaction(symbol, inst->getPrice(), TipTranzactie::BUY));
+        history.emplace_back(symbol, inst->getPrice(), TipTranzactie::BUY);
+
+        std::cout << "Ai cumparat " << quantity << " " << symbol << "!\n";
     }
 }
 
@@ -29,7 +32,8 @@ void User::sellPosition(int id) {
     Instrument *inst = pos->getInstrument();
     available_balance += pos->getMarginBlocked() + (inst->getPrice() - pos->getEntryPrice()) * pos->getQuantity();
     invested_balance -= pos->getMarginBlocked();
-    history.push_back(Transaction(inst->getSymbol(), inst->getPrice(), TipTranzactie::SELL));
+    history.emplace_back(inst->getSymbol(), inst->getPrice(), TipTranzactie::SELL);
+    std::cout << "Ai vandut " << pos->getQuantity() << " " << pos->getInstrument()->getSymbol() << "!\n";
     portfolio.removePosition(id);
 }
 
@@ -38,6 +42,6 @@ void User::printHistory() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const User& u) {
-    os << "User: " << u.name << " | Balanta: " << u.available_balance << "$\n" << u.portfolio;
+    os << "User: " << u.name << " | Balanta: " << u.available_balance << nume_monede[u.currency] << "\n" << u.portfolio;
     return os;
 }

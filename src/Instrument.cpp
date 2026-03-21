@@ -11,10 +11,14 @@ Instrument::Instrument(const std::string& name, const std::string& symbol, doubl
 void Instrument::print(std::ostream& os) const {
     os << "[" << symbol << "] " << name << " - Pret: " << current_price << "$";
 }
-
+std::ostream& operator<<(std::ostream& os, const Instrument& inst) {
+    inst.print(os);
+    return os;
+}
 
 TipInstrument PhysicalAsset::getTip() const { return TipInstrument::STOCK; }
 Instrument* PhysicalAsset::clone() const { return new PhysicalAsset(*this); }
+
 PhysicalAsset::PhysicalAsset(const std::string& name, const std::string& symbol, double current_price, double dividend_yield)
     : Instrument(name, symbol, current_price), dividend_yield(dividend_yield) {
     this->tip_instrument = TipInstrument::STOCK;

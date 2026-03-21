@@ -14,7 +14,7 @@ class Market {
     std::vector<Instrument*> available_instruments;
     std::thread price_thread;
     std::atomic<bool> is_running{false};
-    void changePrices();
+    void changePrices() const;
 
 public:
     Market() = default;
@@ -23,7 +23,7 @@ public:
     Market& operator=(const Market& other);
     ~Market();
 
-    Instrument* findInstrument(const std::string& symbol) const;
+    [[nodiscard]]Instrument* findInstrument(const std::string& symbol) const;
     void startMarket();
     void stopMarket();
     friend std::ostream& operator<<(std::ostream& os, const Market& m);
