@@ -14,7 +14,7 @@ void User::buyAsset(const std::string& symbol, double quantity) {
     if (!inst) { std::cout << "Nu exista!\n"; return; }
 
     int leverage = 1;
-    if (inst->getTip() == TipInstrument::DERIVATE && fin_tastatura.is_open()) fin_tastatura >> leverage;
+    if (inst->getTip() == TipInstrument::DERIVATE) leverage = inst->getLeverage();
 
     double margin = (inst->getPrice() * quantity) / leverage;
     if (available_balance >= margin) {
