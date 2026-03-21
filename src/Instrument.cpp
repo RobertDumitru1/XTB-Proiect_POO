@@ -11,6 +11,8 @@ Instrument::Instrument(const std::string& name, const std::string& symbol, doubl
 void Instrument::print(std::ostream& os) const {
     os << "[" << symbol << "] " << name << " - Pret: " << current_price << "$";
 }
+int Instrument::getLeverage() const { return -1; };
+
 std::ostream& operator<<(std::ostream& os, const Instrument& inst) {
     inst.print(os);
     return os;
@@ -31,12 +33,14 @@ void PhysicalAsset::print(std::ostream& os) const {
 
 TipInstrument Derivative::getTip() const { return TipInstrument::DERIVATE; }
 Instrument*  Derivative::clone() const { return new Derivative(*this); }
-Derivative::Derivative(const std::string& name, const std::string& symbol, double current_price, int max_leverage, double swap_fee)
-    : Instrument(name, symbol, current_price), max_leverage(max_leverage), swap_fee(swap_fee) {
+Derivative::Derivative(const std::string& name, const std::string& symbol, double current_price, int leverage, double swap_fee)
+    : Instrument(name, symbol, current_price), leverage(leverage), swap_fee(swap_fee) {
     this->tip_instrument = TipInstrument::DERIVATE;
 }
 
+int Derivative::getLeverage() const { return this->leverage; };
+
 void Derivative::print(std::ostream& os) const {
     Instrument::print(os);
-    os << " | Leverage: x" << max_leverage << " | Swap: " << swap_fee;
+    os << " | Leverage: x" << leverage << " | Swap: " << swap_fee;
 }

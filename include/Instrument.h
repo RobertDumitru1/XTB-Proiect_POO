@@ -24,7 +24,8 @@ public:
     [[nodiscard]]double getPrice() const;
     [[nodiscard]]virtual TipInstrument getTip() const = 0;
     [[nodiscard]]virtual Instrument* clone() const = 0;
-    virtual void print(std::ostream& os) const;
+    virtual void print(std::ostream& os) const = 0;
+    virtual int getLeverage() const;
 
     friend std::ostream& operator<<(std::ostream& os, const Instrument& inst);
     friend class Market;
@@ -41,14 +42,16 @@ public:
 };
 
 class Derivative : public Instrument {
-    int max_leverage = 1;
+    int leverage = 1;
     double swap_fee = 0.0;
 public:
     Derivative() = default;
-    Derivative(const std::string& name, const std::string& symbol, double current_price, int max_leverage, double swap_fee);
+    Derivative(const std::string& name, const std::string& symbol, double current_price, int leverage, double swap_fee);
     [[nodiscard]]TipInstrument getTip() const override;
     [[nodiscard]]Instrument* clone() const override;
+    [[nodiscard]]int getLeverage() const;
     void print(std::ostream& os) const override;
+
 
 };
 #endif
