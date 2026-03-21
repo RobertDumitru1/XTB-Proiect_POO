@@ -16,8 +16,8 @@ public:
     Instrument(const std::string& name, const std::string& symbol, double current_price);
     virtual ~Instrument() = default;
 
-    std::string getSymbol() const { return symbol; }
-    double getPrice() const { return current_price; }
+    std::string getSymbol() const;
+    double getPrice() const;
     virtual TipInstrument getTip() const = 0;
     virtual Instrument* clone() const = 0;
     virtual void print(std::ostream& os) const;
@@ -31,8 +31,8 @@ class PhysicalAsset : public Instrument {
 public:
     PhysicalAsset() = default;
     PhysicalAsset(const std::string& name, const std::string& symbol, double current_price, double dividend_yield);
-    TipInstrument getTip() const override { return TipInstrument::STOCK; }
-    Instrument* clone() const override { return new PhysicalAsset(*this); }
+    TipInstrument getTip() const override;
+    Instrument* clone() const override;
     void print(std::ostream& os) const override;
 };
 
@@ -42,8 +42,8 @@ class Derivative : public Instrument {
 public:
     Derivative() = default;
     Derivative(const std::string& name, const std::string& symbol, double current_price, int max_leverage, double swap_fee);
-    TipInstrument getTip() const override { return TipInstrument::DERIVATE; }
-    Instrument* clone() const override { return new Derivative(*this); }
+    TipInstrument getTip() const override;
+    Instrument* clone() const override;
     void print(std::ostream& os) const override;
 };
 

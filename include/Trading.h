@@ -51,13 +51,4 @@ public:
     Transaction(const std::string &symbol, double price, TipTranzactie tip);
     friend std::ostream& operator<<(std::ostream& os, const Transaction& t);
 };
-
-inline std::ostream& operator<<(std::ostream& os, const Position& pos) {
-    if (pos.asset) {
-        os << "  [ID: " << pos.id << "] -> " << pos.quantity << " x " << pos.asset->getSymbol()
-           << " | Leverage: x" << pos.leverage_used
-           << " | Pret intrare: " << pos.entry_price << "$ | Marja: " << pos.margin_blocked << "$";
-    }
-    return os;
-}
 #endif
