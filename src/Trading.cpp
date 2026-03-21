@@ -18,7 +18,6 @@ Instrument* Position::getInstrument() const { return asset; }
 void Portfolio::addPosition(const Position& position) {
     active_positions.push_back(position);
 }
-void Position::setClosePrice(double price) { close_price = price; }
 double Position::getQuantity() const { return quantity; }
 double Position::getMarginBlocked() const { return margin_blocked; }
 double Position::getEntryPrice() const { return entry_price; }

@@ -27,9 +27,9 @@ void User::buyAsset(const std::string& symbol, double quantity) {
 }
 
 void User::sellPosition(int id) {
-    Position *pos = portfolio.findPosition(id);
+    Position const *pos = portfolio.findPosition(id);
     if (!pos) return;
-    Instrument *inst = pos->getInstrument();
+    Instrument const *inst = pos->getInstrument();
     available_balance += pos->getMarginBlocked() + (inst->getPrice() - pos->getEntryPrice()) * pos->getQuantity();
     invested_balance -= pos->getMarginBlocked();
     history.emplace_back(inst->getSymbol(), inst->getPrice(), TipTranzactie::SELL);

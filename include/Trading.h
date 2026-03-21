@@ -14,7 +14,6 @@ class Position {
     int id = 0;
     Instrument* asset = nullptr;
     double entry_price = 0.0;
-    double close_price = 0.0;
     double quantity = 0.0;
     int leverage_used = 1;
     double margin_blocked = 0.0;
