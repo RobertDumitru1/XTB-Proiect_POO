@@ -1,0 +1,65 @@
+{
+    "NVDA": {
+        "type": "stock",
+        "name": "NVIDIA Corporation",
+        "price": 180.64,
+        "dividents": 0.00023130747
+    },
+    "BTC-USD": {
+        "type": "derivate",
+        "name": "Bitcoin USD",
+        "price": 70904.05,
+        "leverage": 47.75504573906041,
+        "swap_fee": 8.385306800206289
+    },
+    "TSLA": {
+        "type": "stock",
+        "name": "Tesla, Inc.",
+        "price": 384.85,
+        "dividents": 0.0
+    },
+    "MSTR": {
+        "type": "stock",
+        "name": "Strategy Inc",
+        "price": 139.2,
+        "dividents": 0.0
+    },
+    "SPY": {
+        "type": "stock",
+        "name": "State Street SPDR S&P 500 ETF T",
+        "price": 661.38,
+        "dividents": 0.008729976
+    },
+    "PLTR": {
+        "type": "stock",
+        "name": "Palantir Technologies Inc.",
+        "price": 161.84,
+        "dividents": 0.0
+    },
+    "ETH-USD": {
+        "type": "derivate",
+        "name": "Ethereum USD",
+        "price": 2168.4116,
+        "leverage": 23.601928258057487,
+        "swap_fee": 8.125200674852554
+    },
+    "AMZN": {
+        "type": "stock",
+        "name": "Amazon.com, Inc.",
+        "price": 219.14,
+        "dividents": 0.0
+    },
+    "SOL-USD": {
+        "type": "derivate",
+        "name": "Solana USD",
+        "price": 101.824974,
+        "leverage": 39.60540708501921,
+        "swap_fee": 2.323466053751612
+    },
+    "META": {
+        "type": "stock",
+        "name": "Meta Platforms, Inc.",
+        "price": 606.06,
+        "dividents": 0.0035373783
+    }
+}
