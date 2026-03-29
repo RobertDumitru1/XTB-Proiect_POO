@@ -14,12 +14,17 @@ Position::Position(Instrument* asset, double entry_price, double quantity, int l
 
 
 int Position::getId() const { return id; }
+
 Instrument* Position::getInstrument() const { return asset; }
+
 void Portfolio::addPosition(const Position& position) {
     active_positions.push_back(position);
 }
+
 double Position::getQuantity() const { return quantity; }
+
 double Position::getMarginBlocked() const { return margin_blocked; }
+
 double Position::getEntryPrice() const { return entry_price; }
 
 Position* Portfolio::findPosition(int id) {
