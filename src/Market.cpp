@@ -9,6 +9,7 @@ void Market::changePrices() const {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<> dis(-5.0, 5.0);
+
         for (auto *w : available_instruments) {
             w->current_price += w->current_price * dis(gen) / 100;
         }
@@ -16,7 +17,7 @@ void Market::changePrices() const {
     }
 }
 
-Market::Market(const std::vector<Instrument*>& insts) {
+Market::Market(const std::vector<Instrument*>& insts) : is_running(false) {
     for (const auto* i : insts) if (i) available_instruments.push_back(i->clone());
 }
 

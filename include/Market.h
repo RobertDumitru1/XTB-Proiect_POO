@@ -14,8 +14,8 @@ class Market {
     std::vector<Instrument*> available_instruments;
     std::thread price_thread;
     std::atomic<bool> is_running{false};
-    void changePrices() const;
 
+    void changePrices() const;
 public:
     Market() = default;
     explicit Market(const std::vector<Instrument*>& insts);

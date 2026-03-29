@@ -9,7 +9,7 @@ User::User(const std::string& n, const std::string& c, const std::string& p, Cur
     : name(n), cnp(c), password(p), currency(curr), available_balance(avail), invested_balance(inv), portfolio(port), history(hist), market(m) {}
 
 void User::buyAsset(const std::string& symbol, double quantity) {
-    if (!market) return;
+    if (!this->market) return;
     auto* inst = market->findInstrument(symbol);
     if (!inst) { std::cout << "Nu exista!\n"; return; }
 

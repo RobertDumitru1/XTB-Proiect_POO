@@ -21,9 +21,9 @@ public:
     virtual ~Instrument() = default;
 
     [[nodiscard]] const std::string& getSymbol() const;
-    [[nodiscard]]double getPrice() const;
-    [[nodiscard]]virtual TipInstrument getTip() const = 0;
-    [[nodiscard]]virtual Instrument* clone() const = 0;
+    [[nodiscard]] double getPrice() const;
+    [[nodiscard]] virtual TipInstrument getTip() const = 0;
+    [[nodiscard]] virtual Instrument* clone() const = 0;
     virtual void print(std::ostream& os) const = 0;
     virtual int getLeverage() const;
 
