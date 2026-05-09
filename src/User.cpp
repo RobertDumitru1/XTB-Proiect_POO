@@ -41,6 +41,10 @@ void User::printHistory() const {
     for (const auto& t : history) std::cout << t << "\n";
 }
 
+double User::getAvailableBalance() const {
+    return available_balance;
+}
+
 std::ostream& operator<<(std::ostream& os, const User& u) {
     os << "User: " << u.name << " | Balanta: " << u.available_balance << nume_monede[u.currency] << "\n" << u.portfolio;
     return os;

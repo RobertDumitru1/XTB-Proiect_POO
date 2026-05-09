@@ -45,6 +45,10 @@ Instrument* Market::findInstrument(const std::string& symbol) const {
     return nullptr;
 }
 
+const std::vector<Instrument*>& Market::getInstruments() const{
+    return available_instruments;
+}
+
 void Market::startMarket() {
     if (!is_running.load()) {
         is_running = true;

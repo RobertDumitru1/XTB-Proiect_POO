@@ -18,7 +18,7 @@ while x > 0:
             companies[symbol] = {"type":"stock", "name": name, "price": price + random.randint(1, 9), "dividents": dividents}
         else:
             companies[symbol] = {"type":"derivate", "name": name, "price": price + random.randint(1, 10), "leverage": random.random() * 50, "swap_fee": random.random() * 10}
-        print(symbol)
+        # print(symbol)
     reader.close()
     with open("companies_data_copy.json", "w") as writer:
         json.dump(companies, writer, indent=4)
