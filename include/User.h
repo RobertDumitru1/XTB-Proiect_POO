@@ -23,6 +23,7 @@ public:
     void buyAsset(const std::string& symbol, double quantity);
     void sellPosition(int position_id);
     void printHistory() const;
+    double getAvailableBalance() const;
     friend std::ostream& operator<<(std::ostream& os, const User& u);
 };
 #endif

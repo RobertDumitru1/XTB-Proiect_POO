@@ -26,6 +26,7 @@ public:
     [[nodiscard]]Instrument* findInstrument(const std::string& symbol) const;
     void startMarket();
     void stopMarket();
+    const std::vector<Instrument*>& getInstruments() const ;
     friend std::ostream& operator<<(std::ostream& os, const Market& m);
 };
 #endif
