@@ -30,15 +30,15 @@ include(cmake/CopyHelper.cmake)
 # NOTE: Also update env vars used for caching in
 #     - .github/actions/configure-cmake/action.yml
 #     - .github/workflows/cmake.yml
- FetchContent_Declare(
-     SFML
-     GIT_REPOSITORY https://github.com/SFML/SFML.git
-     GIT_TAG        master # <which tag/branch @ <some_date>>
-     GIT_SHALLOW    1  # works only with branches or tags, not with arbitrary commit hashes
-     GIT_PROGRESS   ON
- )
+# FetchContent_Declare(
+#     SFML
+#     GIT_REPOSITORY https://github.com/SFML/SFML.git
+#     GIT_TAG        master # <which tag/branch @ <some_date>>
+#     GIT_SHALLOW    1  # works only with branches or tags, not with arbitrary commit hashes
+#     GIT_PROGRESS   ON
+# )
 #
- FetchContent_MakeAvailable(SFML)
+# FetchContent_MakeAvailable(SFML)
 
 ###############################################################################
 
@@ -61,13 +61,13 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/Exceptions.cpp
 )
 
-target_link_libraries(oop
-        SFML::Graphics
-        SFML::Audio
-        SFML::Network
-        SFML::Window
-        SFML::System
-)
+#target_link_libraries(oop
+#        SFML::Graphics
+#        SFML::Audio
+#        SFML::Network
+#        SFML::Window
+#        SFML::System
+#)
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )
 # NOTE: RUN_SANITIZERS is optional, if it's not present it will default to true
