@@ -5,6 +5,7 @@
 #ifndef XTB_PROIECT_POO_USER_H
 #define XTB_PROIECT_POO_USER_H
 
+#include <memory>
 #include "Trading.h"
 #include "Market.h"
 
@@ -15,11 +16,11 @@ class User {
     double invested_balance = 0.0;
     Portfolio portfolio;
     std::vector<Transaction> history;
-    Market* market = nullptr;
+    std::shared_ptr<Market> market = nullptr;
 
 public:
     User() = default;
-    User(const std::string& n, const std::string& c, const std::string& p, Currency curr, double avail, double inv, const Portfolio& port, const std::vector<Transaction>& hist, Market* m);
+    User(const std::string& n, const std::string& c, const std::string& p, Currency curr, double avail, double inv, const Portfolio& port, const std::vector<Transaction>& hist, std::shared_ptr<Market> m);
     void buyAsset(const std::string& symbol, double quantity);
     void sellPosition(int position_id);
     void printHistory() const;

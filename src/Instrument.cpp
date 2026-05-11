@@ -20,8 +20,9 @@ std::ostream& operator<<(std::ostream& os, const Instrument& inst) {
 
 TipInstrument PhysicalAsset::getTip() const { return TipInstrument::STOCK; }
 
-Instrument* PhysicalAsset::clone() const { return new PhysicalAsset(*this); }
-
+std::unique_ptr<Instrument> PhysicalAsset::clone() const {
+    return std::make_unique<PhysicalAsset>(*this);
+}
 PhysicalAsset::PhysicalAsset(const std::string& name, const std::string& symbol, double current_price, double dividend_yield)
     : Instrument(name, symbol, current_price), dividend_yield(dividend_yield) {
     this->tip_instrument = TipInstrument::STOCK;
@@ -34,8 +35,9 @@ void PhysicalAsset::print(std::ostream& os) const {
 
 TipInstrument Derivative::getTip() const { return TipInstrument::DERIVATE; }
 
-Instrument*  Derivative::clone() const { return new Derivative(*this); }
-
+std::unique_ptr<Instrument> Derivative::clone() const {
+    return std::make_unique<Derivative>(*this);
+}
 Derivative::Derivative(const std::string& name, const std::string& symbol, double current_price, int leverage, double swap_fee)
     : Instrument(name, symbol, current_price), leverage(leverage), swap_fee(swap_fee) {
     this->tip_instrument = TipInstrument::DERIVATE;
@@ -60,8 +62,8 @@ TipInstrument CryptoAsset::getTip() const {
     return TipInstrument::CRYPTO;
 }
 
-Instrument* CryptoAsset::clone() const {
-    return new CryptoAsset(*this);
+std::unique_ptr<Instrument> CryptoAsset::clone() const {
+    return std::make_unique<CryptoAsset>(*this);
 }
 
 CryptoAsset::CryptoAsset(const std::string& name, const std::string& symbol, double current_price, double network_fee, bool is_staked)
