@@ -8,20 +8,21 @@
 #include "Constants.h"
 #include "Instrument.h"
 #include <vector>
+#include <memory>
 
 class Position {
     static int position_ids;
     int id = 0;
-    Instrument* asset = nullptr;
+    std::shared_ptr<Instrument> asset = nullptr;
     double entry_price = 0.0;
     double quantity = 0.0;
     int leverage_used = 1;
     double margin_blocked = 0.0;
 public:
     Position() = default;
-    Position(Instrument* asset, double entry_price, double quantity, int leverage_used);
+    Position(std::shared_ptr<Instrument> asset, double entry_price, double quantity, int leverage_used);
     [[nodiscard]] int getId() const;
-    [[nodiscard]] Instrument* getInstrument() const;
+    [[nodiscard]] std::shared_ptr<Instrument> getInstrument() const;
     void setClosePrice(double price);
     [[nodiscard]] double getQuantity() const ;
     [[nodiscard]] double getMarginBlocked() const;
@@ -31,11 +32,11 @@ public:
 };
 
 class Portfolio {
-    std::vector<Position> active_positions;
+    std::vector<std::shared_ptr<Position>> active_positions;
 public:
     Portfolio() = default;
-    void addPosition(const Position& position);
-    Position* findPosition(int id);
+    void addPosition(std::shared_ptr<Position> position);
+    std::shared_ptr<Position> findPosition(int id);
     void removePosition(int id);
     friend std::ostream& operator<<(std::ostream& os, const Portfolio& port);
 };
