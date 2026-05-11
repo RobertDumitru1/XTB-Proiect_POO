@@ -29,7 +29,7 @@ public:
     [[nodiscard]] std::shared_ptr<Instrument> findInstrument(const std::string& symbol) const;
     void startMarket();
     void stopMarket();
-    const std::vector<std::shared_ptr<Instrument>> getInstruments() const;
+    const std::vector<std::shared_ptr<Instrument>>& getInstruments() const;
     friend std::ostream& operator<<(std::ostream& os, const Market& m);
     friend void swap(Market& first, Market& second) noexcept;
 };
