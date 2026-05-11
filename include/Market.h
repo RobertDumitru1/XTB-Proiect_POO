@@ -20,7 +20,7 @@ public:
     Market() = default;
     explicit Market(const std::vector<Instrument*>& insts);
     Market(const Market& other);
-    Market& operator=(const Market& other);
+    Market& operator=(Market other);
     ~Market();
 
     [[nodiscard]]Instrument* findInstrument(const std::string& symbol) const;
@@ -28,5 +28,6 @@ public:
     void stopMarket();
     const std::vector<Instrument*>& getInstruments() const ;
     friend std::ostream& operator<<(std::ostream& os, const Market& m);
+    friend void swap(Market& first, Market& second) noexcept;
 };
 #endif
