@@ -28,7 +28,7 @@ double Position::getMarginBlocked() const { return margin_blocked; }
 double Position::getEntryPrice() const { return entry_price; }
 
 std::shared_ptr<Position> Portfolio::findPosition(int id) {
-    for (auto &w : active_positions) {
+    for (const auto &w : active_positions) {
         if (w && id == w->getId()) return w; // w este deja un shared_ptr
     }
     return nullptr;
