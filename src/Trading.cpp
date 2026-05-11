@@ -70,3 +70,7 @@ std::ostream& operator<<(std::ostream& os, const Position& pos) {
     }
     return os;
 }
+
+int Position::getPositionsCreated() {
+    return position_ids;
+}

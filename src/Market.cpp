@@ -4,6 +4,8 @@
 #include "Market.h"
 #include <random>
 
+#include "Exceptions.h"
+
 void Market::changePrices() const {
     while (this->is_running) {
         std::random_device rd;
@@ -25,13 +27,8 @@ Market::Market(const Market& other) : is_running(false) {
     for (const auto* i : other.available_instruments) if (i) available_instruments.push_back(i->clone());
 }
 
-Market& Market::operator=(const Market& other) {
-    if (this != &other) {
-        stopMarket();
-        for (auto* i : available_instruments) delete i;
-        available_instruments.clear();
-        for (const auto* i : other.available_instruments) if (i) available_instruments.push_back(i->clone());
-    }
+Market& Market::operator=(Market other) {
+    swap(*this, other);
     return *this;
 }
 
@@ -42,7 +39,7 @@ Market::~Market() {
 
 Instrument* Market::findInstrument(const std::string& symbol) const {
     for (auto* i : available_instruments) if (i->getSymbol() == symbol) return i;
-    return nullptr;
+    throw InstrumentNotFoundException(symbol);
 }
 
 const std::vector<Instrument*>& Market::getInstruments() const{
@@ -65,4 +62,13 @@ std::ostream& operator<<(std::ostream& os, const Market& m) {
     os << "=== PIATA DE INSTRUMENTE ===\n";
     for (const auto* inst : m.available_instruments) if (inst) os << *inst << "\n";
     return os;
+}
+
+void swap(Market& first, Market& second) noexcept {
+    std::swap(first.available_instruments, second.available_instruments);
+    std::swap(first.price_thread, second.price_thread);
+
+    bool running = first.is_running.load();
+    first.is_running.store(second.is_running.load());
+    second.is_running.store(running);
 }

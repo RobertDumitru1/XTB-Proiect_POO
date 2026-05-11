@@ -58,6 +58,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         include/nlohmann/json.hpp
         include/FileWatcher.h
         include/Grafica.h
+        include/Exceptions.h
+        src/Exceptions.cpp
 )
 
 target_link_libraries(oop

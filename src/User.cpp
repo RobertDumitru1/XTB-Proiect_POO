@@ -5,25 +5,38 @@
 #include <iostream>
 #include "User.h"
 
+#include "Exceptions.h"
+
 User::User(const std::string& n, const std::string& c, const std::string& p, Currency curr, double avail, double inv, const Portfolio& port, const std::vector<Transaction>& hist, Market* m)
     : name(n), cnp(c), password(p), currency(curr), available_balance(avail), invested_balance(inv), portfolio(port), history(hist), market(m) {}
 
 void User::buyAsset(const std::string& symbol, double quantity) {
-    if (!this->market) return;
-    auto* inst = market->findInstrument(symbol);
-    if (!inst) { std::cout << "Nu exista!\n"; return; }
-
-    int leverage = 1;
-    if (inst->getTip() == TipInstrument::DERIVATE) leverage = inst->getLeverage();
-
-    double margin = (inst->getPrice() * quantity) / leverage;
-    if (available_balance >= margin) {
-        available_balance -= margin; invested_balance += margin;
-        portfolio.addPosition(Position(inst, inst->getPrice(), quantity, leverage));
-        history.emplace_back(symbol, inst->getPrice(), TipTranzactie::BUY);
-
-        std::cout << "Ai cumparat " << quantity << " " << symbol << "!\n";
+    if (!this->market) {
+        throw TradingException("Utilizatorul nu este conectat la nicio piata.");
     }
+    if (quantity <= 0) {
+        throw InvalidQuantityException(quantity);
+    }
+
+    double leverage = 1.0;
+    auto* inst = market->findInstrument(symbol);
+
+    Derivative* dptr = dynamic_cast<Derivative*>(inst);
+
+    if (dptr != nullptr) {
+        leverage = dptr->getLeverage();
+    }
+    double requiredMargin = inst->calculateMargin(quantity);
+
+    if (this->available_balance < requiredMargin) {
+        throw InsufficientFundsException(requiredMargin, this->available_balance);
+    }
+
+    available_balance -= requiredMargin; invested_balance += requiredMargin;
+    portfolio.addPosition(Position(inst, inst->getPrice(), quantity, leverage));
+    history.emplace_back(symbol, inst->getPrice(), TipTranzactie::BUY);
+
+    std::cout << "Ai cumparat " << quantity << " " << symbol << "!\n";
 }
 
 void User::sellPosition(int id) {

@@ -27,6 +27,7 @@ public:
     [[nodiscard]] double getMarginBlocked() const;
     [[nodiscard]] double getEntryPrice() const;
     friend std::ostream& operator<<(std::ostream& os, const Position& pos);
+    static int getPositionsCreated();
 };
 
 class Portfolio {

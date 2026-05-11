@@ -13,10 +13,8 @@ Instrument::Instrument(const std::string& name, const std::string& symbol, doubl
 void Instrument::print(std::ostream& os) const {
     os << "[" << symbol << "] " << name << " - Pret: " << current_price << "$";
 }
-int Instrument::getLeverage() const { return -1; };
-
 std::ostream& operator<<(std::ostream& os, const Instrument& inst) {
-    inst.print(os);
+    inst.display(os);
     return os;
 }
 
@@ -48,4 +46,39 @@ int Derivative::getLeverage() const { return this->leverage; };
 void Derivative::print(std::ostream& os) const {
     Instrument::print(os);
     os << " | Leverage: x" << leverage << " | Swap: " << swap_fee;
+}
+
+double PhysicalAsset::calculateMargin(double quantity) const {
+    return this->current_price * quantity;
+}
+
+double Derivative::calculateMargin(double quantity) const {
+    return (this->current_price * quantity) / this->leverage;
+}
+
+TipInstrument CryptoAsset::getTip() const {
+    return TipInstrument::CRYPTO;
+}
+
+Instrument* CryptoAsset::clone() const {
+    return new CryptoAsset(*this);
+}
+
+CryptoAsset::CryptoAsset(const std::string& name, const std::string& symbol, double current_price, double network_fee, bool is_staked)
+    : Instrument(name, symbol, current_price), network_fee(network_fee), is_staked(is_staked) {
+    this->tip_instrument = TipInstrument::CRYPTO;
+}
+
+void CryptoAsset::print(std::ostream& os) const {
+    Instrument::print(os);
+    os << " | Taxa retea: " << network_fee << "$ | Staking: " << (is_staked ? "Da" : "Nu");
+}
+
+double CryptoAsset::calculateMargin(double quantity) const {
+    return (this->current_price * quantity) + network_fee;
+}
+
+
+void Instrument::display(std::ostream &os) const {
+    print(os);
 }
