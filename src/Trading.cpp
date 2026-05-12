@@ -29,7 +29,7 @@ double Position::getEntryPrice() const { return entry_price; }
 
 std::shared_ptr<Position> Portfolio::findPosition(int id) {
     for (const auto &w : active_positions) {
-        if (w && id == w->getId()) return w; // w este deja un shared_ptr
+        if (w && id == w->getId()) return w;
     }
     return nullptr;
 }
