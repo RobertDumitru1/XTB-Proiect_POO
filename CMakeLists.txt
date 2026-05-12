@@ -59,6 +59,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         include/FileWatcher.h
         include/Exceptions.h
         src/Exceptions.cpp
+        include/ETF.h
+        src/ETF.cpp
 )
 
 #target_link_libraries(oop

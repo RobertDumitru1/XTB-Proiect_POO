@@ -7,9 +7,9 @@
 #include "Exceptions.h"
 
 void Market::changePrices() const {
+    std::random_device rd;
+    std::mt19937 gen(rd());
     while (this->is_running) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
         std::uniform_real_distribution<> dis(-5.0, 5.0);
         {
             std::lock_guard<std::mutex> lock(market_mutex);

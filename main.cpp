@@ -8,12 +8,14 @@
 #include "Instrument.h"
 #include "Trading.h"
 #include "Exceptions.h"
+#include "ETF.h"
 
 int main() {
     try {
         std::vector<std::shared_ptr<Instrument>> initial_assets;
         initial_assets.push_back(std::make_shared<PhysicalAsset>("Apple Inc.", "AAPL", 150.0, 1.2));
         initial_assets.push_back(std::make_shared<Derivative>("S&P 500 CFD", "SPX", 5000.0, 20, 0.05));
+        initial_assets.push_back(std::make_shared<ETF>("Vanguard S&P 500 ETF", "VOO", 450.0, 0.03));
 
         auto market = std::make_shared<Market>(initial_assets);
 

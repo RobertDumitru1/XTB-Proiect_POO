@@ -37,25 +37,25 @@ public:
 
 class PhysicalAsset : public Instrument {
     double dividend_yield = 0.0;
+    void print(std::ostream& os) const override;
 public:
     PhysicalAsset() = default;
     PhysicalAsset(const std::string& name, const std::string& symbol, double current_price, double dividend_yield);
     [[nodiscard]]TipInstrument getTip() const override;
     [[nodiscard]]std::unique_ptr<Instrument>  clone() const override;
-    void print(std::ostream& os) const override;
     double calculateMargin(double quantity) const override;
 };
 
 class Derivative : public Instrument {
     int leverage = 1;
     double swap_fee = 0.0;
+    void print(std::ostream& os) const override;
 public:
     Derivative() = default;
     Derivative(const std::string& name, const std::string& symbol, double current_price, int leverage, double swap_fee);
     [[nodiscard]]TipInstrument getTip() const override;
     [[nodiscard]]std::unique_ptr<Instrument>  clone() const override;
     [[nodiscard]]int getLeverage() const;
-    void print(std::ostream& os) const override;
 
     double calculateMargin(double quantity) const override;
 };
@@ -63,13 +63,13 @@ public:
 class CryptoAsset : public Instrument {
     double network_fee = 0.0;
     bool is_staked = false;
+    void print(std::ostream& os) const override;
 public:
     CryptoAsset() = default;
     CryptoAsset(const std::string& name, const std::string& symbol, double current_price, double network_fee, bool is_staked);
 
     [[nodiscard]] TipInstrument getTip() const override;
     [[nodiscard]] std::unique_ptr<Instrument> clone() const override;
-    void print(std::ostream& os) const override;
     double calculateMargin(double quantity) const override;
 };
 #endif

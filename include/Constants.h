@@ -11,7 +11,7 @@
 // inline std::ifstream fin_tastatura;
 
 enum Currency { USD, EUR, RON };
-enum TipInstrument { GENERAL, STOCK, DERIVATE, CRYPTO};
+enum class TipInstrument { GENERAL, STOCK, DERIVATE, CRYPTO, ETF};
 enum TipTranzactie { BUY, SELL };
 
 const std::string nume_monede[] = { "USD", "EUR", "RON" };
