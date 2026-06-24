@@ -2,64 +2,64 @@
     "NVDA": {
         "type": "stock",
         "name": "NVIDIA Corporation",
-        "price": 170.52,
-        "dividents": 0.00023359027
+        "price": 204.0,
+        "dividents": 0.0002
     },
     "BTC-USD": {
         "type": "derivate",
         "name": "Bitcoin USD",
-        "price": 67727.33,
-        "leverage": 27.380321912252143,
-        "swap_fee": 2.5489477288704143
+        "price": 60799.73,
+        "leverage": 25.705458478689135,
+        "swap_fee": 4.563597967821066
     },
     "TSLA": {
         "type": "stock",
         "name": "Tesla, Inc.",
-        "price": 364.83,
+        "price": 382.53,
         "dividents": 0.0
     },
     "MSTR": {
         "type": "stock",
         "name": "Strategy Inc",
-        "price": 128.03,
+        "price": 97.13,
         "dividents": 0.0
     },
     "SPY": {
         "type": "stock",
         "name": "State Street SPDR S&P 500 ETF T",
-        "price": 639.09,
-        "dividents": 0.00877707
+        "price": 742.24,
+        "dividents": 0.007718313
     },
     "PLTR": {
         "type": "stock",
         "name": "Palantir Technologies Inc.",
-        "price": 148.06,
+        "price": 118.5,
         "dividents": 0.0
     },
     "ETH-USD": {
         "type": "derivate",
         "name": "Ethereum USD",
-        "price": 2064.6482,
-        "leverage": 45.99461974775873,
-        "swap_fee": 3.755324667258646
+        "price": 1620.65,
+        "leverage": 16.430302379990874,
+        "swap_fee": 7.3332234284616495
     },
     "AMZN": {
         "type": "stock",
         "name": "Amazon.com, Inc.",
-        "price": 205.34,
+        "price": 240.27,
         "dividents": 0.0
     },
     "SOL-USD": {
         "type": "derivate",
         "name": "Solana USD",
-        "price": 94.11739,
-        "leverage": 4.818351488698425,
-        "swap_fee": 1.0259726725820884
+        "price": 75.54,
+        "leverage": 2.0776220504632628,
+        "swap_fee": 7.472758707639205
     },
     "META": {
         "type": "stock",
         "name": "Meta Platforms, Inc.",
-        "price": 530.72,
-        "dividents": 0.0038338657
+        "price": 560.67,
+        "dividents": 0.0037353253
     }
 }

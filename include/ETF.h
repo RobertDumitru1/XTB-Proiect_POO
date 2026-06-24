@@ -1,7 +1,3 @@
-//
-// Created by dumro on 5/12/2026.
-//
-
 #ifndef OOP_ETF_H
 #define OOP_ETF_H
 

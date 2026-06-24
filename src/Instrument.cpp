@@ -1,6 +1,3 @@
-//
-// Created by dumro on 3/20/2026.
-//
 #include "Instrument.h"
 
 const std::string& Instrument::getSymbol() const { return symbol; }

@@ -1,6 +1,3 @@
-//
-// Created by dumro on 5/9/2026.
-//
 #include "Exceptions.h"
 
 TradingException::TradingException(const std::string& msg) : message(msg) {}

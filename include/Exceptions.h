@@ -1,7 +1,3 @@
-//
-// Created by dumro on 5/9/2026.
-//
-
 #ifndef TRADING_EXCEPTIONS_HPP
 #define TRADING_EXCEPTIONS_HPP
 

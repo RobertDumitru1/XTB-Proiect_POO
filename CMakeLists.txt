@@ -56,11 +56,17 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/Market.cpp
         src/User.cpp
         include/nlohmann/json.hpp
-        include/FileWatcher.h
         include/Exceptions.h
         src/Exceptions.cpp
         include/ETF.h
         src/ETF.cpp
+        include/HistoryLog.h
+        include/Observer.h
+        include/nlohmann/InstrumentFactory.h
+        src/InstrumentFactory.cpp
+        include/ConsoleApp.h
+        src/ConsoleApp.cpp
+        include/InstrumentFactory.h
 )
 
 #target_link_libraries(oop
