@@ -1,7 +1,3 @@
-//
-// Created by dumro on 3/20/2026.
-//
-
 #ifndef XTB_PROIECT_POO_MARKET_H
 #define XTB_PROIECT_POO_MARKET_H
 
@@ -11,12 +7,14 @@
 #include <memory>
 #include <mutex>
 #include "Instrument.h"
+#include "Observer.h"
 
 class Market {
     std::vector<std::shared_ptr<Instrument>> available_instruments;
     std::thread price_thread;
     std::atomic<bool> is_running{false};
     mutable std::mutex market_mutex;
+    Observer* ui_observer = nullptr;
 
     void changePrices() const;
 public:
@@ -32,5 +30,9 @@ public:
     const std::vector<std::shared_ptr<Instrument>>& getInstruments() const;
     friend std::ostream& operator<<(std::ostream& os, const Market& m);
     friend void swap(Market& first, Market& second) noexcept;
+
+    void addObserver(Observer* obs) {
+        ui_observer = obs;
+    }
 };
 #endif

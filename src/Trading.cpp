@@ -1,6 +1,3 @@
-//
-// Created by dumro on 3/20/2026.
-//
 #include "Trading.h"
 
 int Position::position_ids = 0;
@@ -47,7 +44,7 @@ std::ostream& operator<<(std::ostream& os, const Portfolio& port) {
     os << "=== PORTOFOLIU CURENT ===\n";
     if (port.active_positions.empty()) os << "  Portofoliul este gol.\n";
     else {
-        for (const auto& pos : port.active_positions) os << pos << "\n";
+        for (const auto& pos : port.active_positions) os << *pos << "\n";
     }
     return os;
 }

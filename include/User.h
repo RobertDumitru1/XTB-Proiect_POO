@@ -1,30 +1,39 @@
-//
-// Created by dumro on 3/20/2026.
-//
+#ifndef OOP_USER_H
+#define OOP_USER_H
 
-#ifndef XTB_PROIECT_POO_USER_H
-#define XTB_PROIECT_POO_USER_H
-
+#include <string>
 #include <memory>
 #include "Trading.h"
+#include "HistoryLog.h"
+
 #include "Market.h"
+#include "Constants.h"
 
 class User {
-    std::string name = "", cnp = "", password = "";
-    Currency currency = USD;
-    double available_balance = 0.0;
-    double invested_balance = 0.0;
+private:
+    std::string name;
+    std::string cnp;
+    std::string password;
+    Currency currency;
+    double available_balance;
+    double invested_balance;
     Portfolio portfolio;
-    std::vector<Transaction> history;
-    std::shared_ptr<Market> market = nullptr;
+    HistoryLog<Transaction> history;
+
+    std::shared_ptr<Market> market;
 
 public:
-    User() = default;
-    User(const std::string& n, const std::string& c, const std::string& p, Currency curr, double avail, double inv, const Portfolio& port, const std::vector<Transaction>& hist, std::shared_ptr<Market> m);
+    User(const std::string& n, const std::string& c, const std::string& p,
+         Currency curr, double avail, double inv, std::shared_ptr<Market> m);
     void buyAsset(const std::string& symbol, double quantity);
-    void sellPosition(int position_id);
+    void sellPosition(int id);
+
     void printHistory() const;
     double getAvailableBalance() const;
+    const Portfolio& getPortfolio() const;
+    const HistoryLog<Transaction>& getHistory() const;
+
     friend std::ostream& operator<<(std::ostream& os, const User& u);
 };
-#endif
+
+#endif //OOP_USER_H

@@ -1,7 +1,3 @@
-//
-// Created by dumro on 5/12/2026.
-//
-
 #include "ETF.h"
 
 ETF::ETF(const std::string& name, const std::string& symbol, double current_price, double management_fee)

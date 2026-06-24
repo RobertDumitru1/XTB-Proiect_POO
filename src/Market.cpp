@@ -1,6 +1,3 @@
-//
-// Created by dumro on 3/20/2026.
-//
 #include "Market.h"
 #include <random>
 
@@ -9,6 +6,8 @@
 void Market::changePrices() const {
     std::random_device rd;
     std::mt19937 gen(rd());
+
+    std::this_thread::sleep_for(std::chrono::seconds(20));
     while (this->is_running) {
         std::uniform_real_distribution<> dis(-5.0, 5.0);
         {
@@ -18,7 +17,11 @@ void Market::changePrices() const {
             }
         }
 
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        if (ui_observer != nullptr) {
+            ui_observer->onPricesUpdated();
+        }
+
+        std::this_thread::sleep_for(std::chrono::seconds(20));
     }
 }
 

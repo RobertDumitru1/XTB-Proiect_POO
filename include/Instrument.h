@@ -1,8 +1,3 @@
-//
-// Created by dumro on 3/20/2026.
-//
-
-
 #ifndef XTB_PROIECT_POO_INSTRUMENT_H
 #define XTB_PROIECT_POO_INSTRUMENT_H
 
