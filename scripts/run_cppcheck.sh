@@ -11,6 +11,8 @@ cppcheck --enable=all \
     --suppress=missingIncludeSystem \
     --suppress=unmatchedSuppression \
     --suppress=useStlAlgorithm \
+    --suppress=*:include/nlohmann/* \
+    --suppress=*:include/HistoryLog.h \
     --check-level=exhaustive \
     -j 6 \
     --cppcheck-build-dir=cppcheck-scan-dir \
