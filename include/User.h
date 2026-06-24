@@ -14,7 +14,6 @@ private:
     std::string name;
     std::string cnp;
     std::string password;
-    Currency currency;
     double available_balance;
     double invested_balance;
     Portfolio portfolio;
@@ -23,12 +22,10 @@ private:
     std::shared_ptr<Market> market;
 
 public:
-    User(const std::string& n, const std::string& c, const std::string& p,
-         Currency curr, double avail, double inv, std::shared_ptr<Market> m);
+    User(const std::string& n, const std::string& c, const std::string& p, double avail, double inv, std::shared_ptr<Market> m);
     void buyAsset(const std::string& symbol, double quantity);
     void sellPosition(int id);
 
-    void printHistory() const;
     double getAvailableBalance() const;
     const Portfolio& getPortfolio() const;
     const HistoryLog<Transaction>& getHistory() const;

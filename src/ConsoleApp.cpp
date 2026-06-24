@@ -6,9 +6,10 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include <thread>
 #include <nlohmann/json.hpp>
 
-ConsoleApp::ConsoleApp() : is_running(true), needs_refresh(true), market(nullptr), user(nullptr) {
+ConsoleApp::ConsoleApp() : is_running(true), market(nullptr), user(nullptr) {
     std::vector<std::shared_ptr<Instrument>> insts;
 
     std::ifstream file("companies_data_copy.json");
@@ -29,7 +30,7 @@ ConsoleApp::ConsoleApp() : is_running(true), needs_refresh(true), market(nullptr
 
     market = std::make_shared<Market>(insts);
     market->addObserver(this);
-    user = std::make_unique<User>("Trader", "12345", "pass", USD, 10000.0, 0.0, market);
+    user = std::make_unique<User>("Trader", "12345", "pass", 10000.0, 0.0, market);
     market->startMarket();
 }
 
@@ -41,14 +42,17 @@ ConsoleApp::~ConsoleApp() {
 
 void ConsoleApp::onPricesUpdated() {
     printUI();
-    std::cout << "\nComenzi: buy | sell | refresh | exit\nIntrodu comanda: " << std::flush;
 }
 
 void ConsoleApp::printUI() {
     std::cout << "\n=========================================\n";
     std::cout << "          PLATFORMA DE TRADING (LIVE)\n";
     std::cout << "=========================================\n";
-    std::cout << "Balanta Disponibila: " << user->getAvailableBalance() << " USD\n";
+    if (user) {
+        std::cout << "Balanta Disponibila: " << user->getAvailableBalance() << " USD\n";
+    } else {
+        std::cout << "Utilizator neinitializat.\n";
+    }
     std::cout << "Pozitii globale active in piata: " << Position::getPositionsCreated() << "\n";
     std::cout << "-----------------------------------------\n";
 
@@ -59,7 +63,6 @@ void ConsoleApp::printUI() {
 
     if (user != nullptr) {
         std::cout << user->getPortfolio();
-
         printLatestRecords(user->getHistory(), 5);
     }
     std::cout << "-----------------------------------------\n";
@@ -100,18 +103,18 @@ void ConsoleApp::processCommand(const std::string& commandLine) {
             std::cout << "[EROARE] Format invalid. Foloseste: sell <ID>\n";
         }
     } else {
-        std::cout << "Comanda necunoscuta.\n";
+        std::cout << "[SISTEM] Comanda necunoscuta: " << actiune << "\n";
     }
 }
 
 void ConsoleApp::run() {
     printUI();
 
-    while (is_running) {
-        std::cout << "\nComenzi: buy | sell | refresh | exit\nIntrodu comanda: ";
-        std::string command;
-        if (std::getline(std::cin, command)) {
-            processCommand(command);
-        }
+    std::ifstream file("tastatura.txt");
+    std::string command;
+
+    while (is_running && std::getline(file, command)) {
+        processCommand(command);
+        std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 }

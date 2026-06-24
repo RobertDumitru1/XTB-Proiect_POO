@@ -10,7 +10,6 @@
 class ConsoleApp : public Observer {
 private:
     bool is_running;
-    bool needs_refresh;
     std::shared_ptr<Market> market;
     std::unique_ptr<User> user;
 

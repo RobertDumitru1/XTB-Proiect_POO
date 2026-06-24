@@ -55,10 +55,6 @@ std::shared_ptr<Instrument> Market::findInstrument(const std::string& symbol) co
     throw InstrumentNotFoundException(symbol);
 }
 
-const std::vector<std::shared_ptr<Instrument>>& Market::getInstruments() const {
-    return available_instruments;
-}
-
 void Market::startMarket() {
     if (!is_running.load()) {
         is_running = true;
