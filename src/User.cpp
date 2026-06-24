@@ -4,9 +4,8 @@
 #include "Exceptions.h"
 #include <iostream>
 
-User::User(const std::string& n, const std::string& c, const std::string& p,
-           Currency curr, double avail, double inv, std::shared_ptr<Market> m)
-    : name(n), cnp(c), password(p), currency(curr), available_balance(avail),
+User::User(const std::string& n, const std::string& c, const std::string& p, double avail, double inv, std::shared_ptr<Market> m)
+    : name(n), cnp(c), password(p), available_balance(avail),
       invested_balance(inv), market(m) {}
 
 void User::buyAsset(const std::string& symbol, double quantity) {
@@ -51,11 +50,6 @@ void User::sellPosition(int id) {
     history.addRecord(Transaction(inst->getSymbol(), inst->getPrice(), TipTranzactie::SELL));
 
     portfolio.removePosition(id);
-}
-
-void User::printHistory() const {
-    std::cout << "\n--- Istoric Tranzactii ---\n";
-    printLatestRecords(history, history.size());
 }
 
 double User::getAvailableBalance() const { return available_balance; }
