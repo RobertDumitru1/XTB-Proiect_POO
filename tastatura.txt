@@ -1,0 +1,8 @@
+buy AAPL 10
+buy GLD 5
+refresh
+buy SPY 100000
+buy MSFT 2
+sell 1
+refresh
+exit
