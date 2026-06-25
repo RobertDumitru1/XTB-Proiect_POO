@@ -62,7 +62,6 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/ETF.cpp
         include/HistoryLog.h
         include/Observer.h
-        include/nlohmann/InstrumentFactory.h
         src/InstrumentFactory.cpp
         include/ConsoleApp.h
         src/ConsoleApp.cpp
